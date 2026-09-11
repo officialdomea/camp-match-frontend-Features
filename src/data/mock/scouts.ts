@@ -1,0 +1,53 @@
+import type { Scout } from "@/types/listing";
+
+/** DEMO DATA — replace with GET /api/v1/scouts */
+export const mockScouts: Scout[] = [
+  {
+    id: "scout_001",
+    name: "Emmanuel Etim",
+    bio: "Final-year student and Camp Match Scout covering Etta Agbor and Satellite Town. I inspect every unit before it is listed.",
+    phoneMasked: "+234 80** *** *412",
+    rating: 4.9,
+    reviewCount: 128,
+    listingCount: 24,
+    responseTimeMinutes: 12,
+    verified: true,
+    joinedAt: "2024-02-11T09:00:00Z",
+  },
+  {
+    id: "scout_002",
+    name: "Aisha Bello",
+    bio: "Camp Match Scout for Ekosodin and Ugbowo. I help freshers settle in safely and negotiate fair rent.",
+    phoneMasked: "+234 70** *** *807",
+    rating: 4.7,
+    reviewCount: 86,
+    listingCount: 17,
+    responseTimeMinutes: 25,
+    verified: true,
+    joinedAt: "2024-06-03T09:00:00Z",
+  },
+  {
+    id: "scout_003",
+    name: "Chidi Okonkwo",
+    bio: "I cover Nsukka and Odenigwe. Every listing comes with a walkthrough video and a landlord check.",
+    phoneMasked: "+234 81** *** *233",
+    rating: 4.8,
+    reviewCount: 64,
+    listingCount: 11,
+    responseTimeMinutes: 40,
+    verified: true,
+    joinedAt: "2025-01-19T09:00:00Z",
+  },
+  {
+    id: "scout_004",
+    name: "Tolu Adeyemi",
+    bio: "Lagos-based Scout for Akoka and Yaba. Focused on shared apartments for students splitting rent.",
+    phoneMasked: "+234 90** *** *551",
+    rating: 4.6,
+    reviewCount: 41,
+    listingCount: 9,
+    responseTimeMinutes: 55,
+    verified: false,
+    joinedAt: "2025-08-02T09:00:00Z",
+  },
+];
