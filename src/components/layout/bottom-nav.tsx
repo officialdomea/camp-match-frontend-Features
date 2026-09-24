@@ -1,8 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { navItems } from "./nav-items";
+import { useAuth } from "@/features/auth/hooks/use-auth";
+import { getNavItems } from "./nav-items";
 import { cn } from "@/lib/utils";
 
 export function BottomNav() {
+  const { user } = useAuth();
+  const navItems = getNavItems(user?.role);
+
   return (
     <nav
       aria-label="Primary"

@@ -5,6 +5,7 @@ import { formatDistance, formatNaira, formatPricePeriod } from "@/lib/format";
 import { VerificationBadge } from "./verification-badge";
 import { accommodationLabels } from "./accommodation-labels";
 import { cn } from "@/lib/utils";
+import { SafeImage } from "@/components/common/safe-image";
 
 type PropertyCardProps = {
   listing: Listing;
@@ -32,15 +33,18 @@ export function PropertyCard({
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {cover ? (
-          <img
+          <SafeImage
             src={cover.url}
             alt={cover.alt}
             width={1024}
             height={768}
             loading={priority ? "eager" : "lazy"}
             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fallbackLabel="Property image unavailable"
           />
-        ) : null}
+        ) : (
+          <SafeImage alt={listing.title} className="size-full" fallbackLabel="No property image" />
+        )}
 
         <div className="absolute left-3 top-3">
           <VerificationBadge

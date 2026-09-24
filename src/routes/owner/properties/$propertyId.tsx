@@ -10,6 +10,8 @@ import {
   Users,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
+import { SafeImage } from "@/components/common/safe-image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ErrorState, LoadingState } from "@/components/common/states";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -117,6 +119,13 @@ function OwnerPropertyDetailPage() {
                   <div className="rounded-xl border border-border p-4">
                     <p className="text-xs uppercase text-muted-foreground">Owner</p>
                     <p className="mt-2 flex items-center gap-2">
+                      <Avatar className="size-7">
+                        <AvatarImage
+                          src={data.owner.profileImageUrl}
+                          alt={`${data.owner.name} profile photo`}
+                        />
+                        <AvatarFallback>{data.owner.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                      </Avatar>
                       <Users className="size-4" /> {data.owner.name}
                     </p>
                   </div>
@@ -129,7 +138,12 @@ function OwnerPropertyDetailPage() {
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {data.photos.map((photo) => (
                 <Card key={photo.id} className="overflow-hidden">
-                  <img src={photo.url} alt={photo.alt} className="h-40 w-full object-cover" />
+                  <SafeImage
+                    src={photo.url}
+                    alt={photo.alt}
+                    className="h-40 w-full object-cover"
+                    fallbackLabel="Image unavailable"
+                  />
                   <CardContent className="p-3 flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">{photo.reviewStatus}</span>
                     {photo.isPrimary ? <Badge variant="secondary">Primary</Badge> : null}

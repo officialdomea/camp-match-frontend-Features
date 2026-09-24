@@ -17,6 +17,7 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as RoommatesRouteImport } from './routes/roommates'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as ScoutRouteImport } from './routes/scout'
 import { Route as SelectRoleRouteImport } from './routes/select-role'
@@ -25,8 +26,10 @@ import { Route as ListingsListingIdRouteImport } from './routes/listings.$listin
 import { Route as OnboardingOwnerRouteImport } from './routes/onboarding.owner'
 import { Route as OnboardingScoutRouteImport } from './routes/onboarding.scout'
 import { Route as OnboardingStudentRouteImport } from './routes/onboarding.student'
+import { Route as OwnerBookingsRouteImport } from './routes/owner/bookings'
 import { Route as OwnerPropertiesRouteImport } from './routes/owner/properties'
 import { Route as ScoutActivityRouteImport } from './routes/scout/activity'
+import { Route as ScoutBookingsRouteImport } from './routes/scout/bookings'
 import { Route as ScoutPropertiesRouteImport } from './routes/scout/properties'
 import { Route as OwnerPropertiesPropertyIdRouteImport } from './routes/owner/properties/$propertyId'
 import { Route as OwnerPropertiesNewRouteImport } from './routes/owner/properties/new'
@@ -76,6 +79,11 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RoommatesRoute = RoommatesRouteImport.update({
+  id: '/roommates',
+  path: '/roommates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SavedRoute = SavedRouteImport.update({
   id: '/saved',
   path: '/saved',
@@ -116,6 +124,11 @@ const OnboardingStudentRoute = OnboardingStudentRouteImport.update({
   path: '/onboarding/student',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerBookingsRoute = OwnerBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => OwnerRoute,
+} as any)
 const OwnerPropertiesRoute = OwnerPropertiesRouteImport.update({
   id: '/properties',
   path: '/properties',
@@ -124,6 +137,11 @@ const OwnerPropertiesRoute = OwnerPropertiesRouteImport.update({
 const ScoutActivityRoute = ScoutActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
+  getParentRoute: () => ScoutRoute,
+} as any)
+const ScoutBookingsRoute = ScoutBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
   getParentRoute: () => ScoutRoute,
 } as any)
 const ScoutPropertiesRoute = ScoutPropertiesRouteImport.update({
@@ -182,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/owner': typeof OwnerRouteWithChildren
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/roommates': typeof RoommatesRoute
   '/saved': typeof SavedRoute
   '/scout': typeof ScoutRouteWithChildren
   '/select-role': typeof SelectRoleRoute
@@ -190,8 +209,10 @@ export interface FileRoutesByFullPath {
   '/onboarding/owner': typeof OnboardingOwnerRoute
   '/onboarding/scout': typeof OnboardingScoutRoute
   '/onboarding/student': typeof OnboardingStudentRoute
+  '/owner/bookings': typeof OwnerBookingsRoute
   '/owner/properties': typeof OwnerPropertiesRouteWithChildren
   '/scout/activity': typeof ScoutActivityRoute
+  '/scout/bookings': typeof ScoutBookingsRoute
   '/scout/properties': typeof ScoutPropertiesRouteWithChildren
   '/owner/properties/$propertyId': typeof OwnerPropertiesPropertyIdRouteWithChildren
   '/owner/properties/new': typeof OwnerPropertiesNewRoute
@@ -210,6 +231,7 @@ export interface FileRoutesByTo {
   '/owner': typeof OwnerRouteWithChildren
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/roommates': typeof RoommatesRoute
   '/saved': typeof SavedRoute
   '/scout': typeof ScoutRouteWithChildren
   '/select-role': typeof SelectRoleRoute
@@ -218,8 +240,10 @@ export interface FileRoutesByTo {
   '/onboarding/owner': typeof OnboardingOwnerRoute
   '/onboarding/scout': typeof OnboardingScoutRoute
   '/onboarding/student': typeof OnboardingStudentRoute
+  '/owner/bookings': typeof OwnerBookingsRoute
   '/owner/properties': typeof OwnerPropertiesRouteWithChildren
   '/scout/activity': typeof ScoutActivityRoute
+  '/scout/bookings': typeof ScoutBookingsRoute
   '/scout/properties': typeof ScoutPropertiesRouteWithChildren
   '/owner/properties/$propertyId': typeof OwnerPropertiesPropertyIdRouteWithChildren
   '/owner/properties/new': typeof OwnerPropertiesNewRoute
@@ -239,6 +263,7 @@ export interface FileRoutesById {
   '/owner': typeof OwnerRouteWithChildren
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/roommates': typeof RoommatesRoute
   '/saved': typeof SavedRoute
   '/scout': typeof ScoutRouteWithChildren
   '/select-role': typeof SelectRoleRoute
@@ -247,8 +272,10 @@ export interface FileRoutesById {
   '/onboarding/owner': typeof OnboardingOwnerRoute
   '/onboarding/scout': typeof OnboardingScoutRoute
   '/onboarding/student': typeof OnboardingStudentRoute
+  '/owner/bookings': typeof OwnerBookingsRoute
   '/owner/properties': typeof OwnerPropertiesRouteWithChildren
   '/scout/activity': typeof ScoutActivityRoute
+  '/scout/bookings': typeof ScoutBookingsRoute
   '/scout/properties': typeof ScoutPropertiesRouteWithChildren
   '/owner/properties/$propertyId': typeof OwnerPropertiesPropertyIdRouteWithChildren
   '/owner/properties/new': typeof OwnerPropertiesNewRoute
@@ -269,6 +296,7 @@ export interface FileRouteTypes {
     | '/owner'
     | '/profile'
     | '/register'
+    | '/roommates'
     | '/saved'
     | '/scout'
     | '/select-role'
@@ -277,8 +305,10 @@ export interface FileRouteTypes {
     | '/onboarding/owner'
     | '/onboarding/scout'
     | '/onboarding/student'
+    | '/owner/bookings'
     | '/owner/properties'
     | '/scout/activity'
+    | '/scout/bookings'
     | '/scout/properties'
     | '/owner/properties/$propertyId'
     | '/owner/properties/new'
@@ -297,6 +327,7 @@ export interface FileRouteTypes {
     | '/owner'
     | '/profile'
     | '/register'
+    | '/roommates'
     | '/saved'
     | '/scout'
     | '/select-role'
@@ -305,8 +336,10 @@ export interface FileRouteTypes {
     | '/onboarding/owner'
     | '/onboarding/scout'
     | '/onboarding/student'
+    | '/owner/bookings'
     | '/owner/properties'
     | '/scout/activity'
+    | '/scout/bookings'
     | '/scout/properties'
     | '/owner/properties/$propertyId'
     | '/owner/properties/new'
@@ -325,6 +358,7 @@ export interface FileRouteTypes {
     | '/owner'
     | '/profile'
     | '/register'
+    | '/roommates'
     | '/saved'
     | '/scout'
     | '/select-role'
@@ -333,8 +367,10 @@ export interface FileRouteTypes {
     | '/onboarding/owner'
     | '/onboarding/scout'
     | '/onboarding/student'
+    | '/owner/bookings'
     | '/owner/properties'
     | '/scout/activity'
+    | '/scout/bookings'
     | '/scout/properties'
     | '/owner/properties/$propertyId'
     | '/owner/properties/new'
@@ -354,6 +390,7 @@ export interface RootRouteChildren {
   OwnerRoute: typeof OwnerRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
+  RoommatesRoute: typeof RoommatesRoute
   SavedRoute: typeof SavedRoute
   ScoutRoute: typeof ScoutRouteWithChildren
   SelectRoleRoute: typeof SelectRoleRoute
@@ -422,6 +459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/roommates': {
+      id: '/roommates'
+      path: '/roommates'
+      fullPath: '/roommates'
+      preLoaderRoute: typeof RoommatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/saved': {
       id: '/saved'
       path: '/saved'
@@ -478,6 +522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingStudentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner/bookings': {
+      id: '/owner/bookings'
+      path: '/bookings'
+      fullPath: '/owner/bookings'
+      preLoaderRoute: typeof OwnerBookingsRouteImport
+      parentRoute: typeof OwnerRoute
+    }
     '/owner/properties': {
       id: '/owner/properties'
       path: '/properties'
@@ -490,6 +541,13 @@ declare module '@tanstack/react-router' {
       path: '/activity'
       fullPath: '/scout/activity'
       preLoaderRoute: typeof ScoutActivityRouteImport
+      parentRoute: typeof ScoutRoute
+    }
+    '/scout/bookings': {
+      id: '/scout/bookings'
+      path: '/bookings'
+      fullPath: '/scout/bookings'
+      preLoaderRoute: typeof ScoutBookingsRouteImport
       parentRoute: typeof ScoutRoute
     }
     '/scout/properties': {
@@ -583,10 +641,12 @@ const OwnerPropertiesRouteWithChildren = OwnerPropertiesRoute._addFileChildren(
 )
 
 interface OwnerRouteChildren {
+  OwnerBookingsRoute: typeof OwnerBookingsRoute
   OwnerPropertiesRoute: typeof OwnerPropertiesRouteWithChildren
 }
 
 const OwnerRouteChildren: OwnerRouteChildren = {
+  OwnerBookingsRoute: OwnerBookingsRoute,
   OwnerPropertiesRoute: OwnerPropertiesRouteWithChildren,
 }
 
@@ -623,11 +683,13 @@ const ScoutPropertiesRouteWithChildren = ScoutPropertiesRoute._addFileChildren(
 
 interface ScoutRouteChildren {
   ScoutActivityRoute: typeof ScoutActivityRoute
+  ScoutBookingsRoute: typeof ScoutBookingsRoute
   ScoutPropertiesRoute: typeof ScoutPropertiesRouteWithChildren
 }
 
 const ScoutRouteChildren: ScoutRouteChildren = {
   ScoutActivityRoute: ScoutActivityRoute,
+  ScoutBookingsRoute: ScoutBookingsRoute,
   ScoutPropertiesRoute: ScoutPropertiesRouteWithChildren,
 }
 
@@ -642,6 +704,7 @@ const rootRouteChildren: RootRouteChildren = {
   OwnerRoute: OwnerRouteWithChildren,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
+  RoommatesRoute: RoommatesRoute,
   SavedRoute: SavedRoute,
   ScoutRoute: ScoutRouteWithChildren,
   SelectRoleRoute: SelectRoleRoute,

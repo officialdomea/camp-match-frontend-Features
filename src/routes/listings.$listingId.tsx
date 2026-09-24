@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, BedDouble, CalendarDays, Heart, ShowerHead } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/layout/app-shell";
@@ -36,6 +36,7 @@ export const Route = createFileRoute("/listings/$listingId")({
 
 function ListingDetailPage() {
   const { listingId } = Route.useParams();
+  const navigate = useNavigate();
   const { data: listing, isPending, isError, refetch } = useListing(listingId);
   const { isSaved, toggleSaved } = useSavedListings();
 
@@ -194,7 +195,7 @@ function ListingDetailPage() {
                 <Button
                   className="mt-4 w-full"
                   size="lg"
-                  onClick={() => toast("Bookings arrive in a later phase.")}
+                  onClick={() => navigate({ to: "/bookings", search: { propertyId: listing.id } })}
                 >
                   Request booking
                 </Button>
@@ -212,7 +213,7 @@ function ListingDetailPage() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur-md lg:hidden">
+      <div className="fixed inset-x-0 bottom-36 z-30 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur-md lg:hidden">
         <div className="flex items-center gap-3">
           <div className="min-w-0">
             <p className="truncate text-base text-foreground price-text">
@@ -225,7 +226,7 @@ function ListingDetailPage() {
           </div>
           <Button
             className="ml-auto h-12 flex-1"
-            onClick={() => toast("Bookings arrive in a later phase.")}
+            onClick={() => navigate({ to: "/bookings", search: { propertyId: listing.id } })}
           >
             Request booking
           </Button>

@@ -318,7 +318,7 @@ export const mockManagedProperties: ManagedProperty[] = [
       [
         "enquiry",
         "New enquiry received",
-        "Asking about instalment payment",
+        "Asking about rent payment inside Camp Match",
         "2026-09-05T09:10:00Z",
       ],
       ["status", "Marked as reserved", "Awaiting tenant confirmation", "2026-09-02T12:00:00Z"],

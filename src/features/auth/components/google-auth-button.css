@@ -1,0 +1,18 @@
+.camp-match-google-logo {
+  display: inline-grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border-radius: 999px;
+  background: conic-gradient(
+    from -45deg,
+    #4285f4 0 25%,
+    #34a853 25% 50%,
+    #fbbc05 50% 70%,
+    #ea4335 70% 100%
+  );
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1;
+}

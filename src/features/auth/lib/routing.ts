@@ -5,11 +5,14 @@ export type AppPath =
   | "/"
   | "/owner"
   | "/scout"
+  | "/roommates"
   | "/verify"
   | "/select-role"
   | "/onboarding/student"
   | "/onboarding/owner"
   | "/onboarding/scout";
+
+const studentOnlyPrefixes = ["/roommates", "/saved", "/bookings"];
 
 /**
  * UX-only role routing. The backend stays authoritative for permissions —
@@ -42,8 +45,12 @@ export function nextPathForUser(user: AuthUser): AppPath {
 export function isRoleRouteAllowed(pathname: string, role: UserRole | null): boolean {
   const isOwnerRoute = pathname === "/owner" || pathname.startsWith("/owner/");
   const isScoutRoute = pathname === "/scout" || pathname.startsWith("/scout/");
+  const isStudentOnlyRoute = studentOnlyPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
 
   if (isOwnerRoute) return role === "owner";
   if (isScoutRoute) return role === "scout";
+  if (isStudentOnlyRoute) return role === "student";
   return true;
 }

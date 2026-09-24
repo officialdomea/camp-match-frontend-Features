@@ -365,7 +365,7 @@ export const mockListings: Listing[] = [
     id: "listing_008",
     title: "Renovated self-contained at Marian Road",
     description:
-      "Renovated self-contained unit on a tarred street with easy transport to campus. New tiles, fresh paint and a treated water tank. Landlord accepts two-instalment payment.",
+      "Renovated self-contained unit on a tarred street with easy transport to campus. New tiles, fresh paint and a treated water tank. Booking and rent payment details are confirmed inside Camp Match.",
     price: 520000,
     pricePeriod: "year",
     accommodationType: "self-contained",

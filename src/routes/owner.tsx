@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Building2, ClipboardList, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState } from "@/components/common/states";
+import { ProfilePhoto } from "@/components/common/profile-photo";
 import { Button } from "@/components/ui/button";
 import { VerificationStatus } from "@/features/onboarding/components/verification-status";
 import { useAuth } from "@/features/auth/hooks/use-auth";
@@ -26,7 +27,10 @@ export const Route = createFileRoute("/owner")({
 });
 
 function OwnerHomePage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const pathname = useLocation({ select: (location) => location.pathname });
+
+  if (pathname !== "/owner") return <Outlet />;
 
   return (
     <AppShell>
@@ -42,6 +46,8 @@ function OwnerHomePage() {
             Listings go live once ownership and identity checks pass.
           </p>
         </div>
+
+        {user ? <ProfilePhoto user={user} editable onUserChange={setUser} /> : null}
 
         <VerificationStatus status={user?.identityVerification ?? "pending"} />
 

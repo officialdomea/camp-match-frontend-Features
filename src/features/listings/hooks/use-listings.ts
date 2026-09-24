@@ -22,6 +22,7 @@ export const listingDetailQuery = (id: string) =>
   queryOptions({
     queryKey: listingKeys.detail(id),
     queryFn: () => listingService.getListingById(id),
+    enabled: Boolean(id),
   });
 
 export const recommendedListingsQuery = queryOptions({

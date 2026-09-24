@@ -18,6 +18,10 @@ type RequestOptions = {
   headers?: Record<string, string>;
 };
 
+function isFormDataBody(body: unknown): body is FormData {
+  return typeof FormData !== "undefined" && body instanceof FormData;
+}
+
 let authTokenProvider: () => string | null = () => null;
 let unauthorizedHandler: (() => Promise<void>) | null = null;
 
@@ -50,16 +54,23 @@ async function request<T>(
   options: RequestOptions = {},
 ): Promise<T> {
   const token = authTokenProvider();
+  const body: BodyInit | undefined = isFormDataBody(options.body)
+    ? options.body
+    : options.body
+      ? JSON.stringify(options.body)
+      : undefined;
   const response = await fetch(buildUrl(path, options.query), {
     method,
     signal: options.signal ?? null,
     headers: {
       Accept: "application/json",
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !isFormDataBody(options.body)
+        ? { "Content-Type": "application/json" }
+        : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
-    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+    ...(body !== undefined ? { body } : {}),
   });
 
   if (!response.ok) {

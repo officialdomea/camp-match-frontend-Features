@@ -1,0 +1,206 @@
+.camp-match-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--background);
+  color: var(--foreground);
+  animation: camp-match-splash-exit 700ms ease 4.3s forwards;
+}
+
+.camp-match-splash__content {
+  display: flex;
+  width: min(88vw, 42rem);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.camp-match-splash__wordmark {
+  display: flex;
+  justify-content: center;
+  white-space: nowrap;
+  color: var(--primary);
+  font-size: clamp(2rem, 10vw, 5.25rem);
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  line-height: 0.95;
+}
+
+.camp-match-splash__wordmark span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.65rem) scale(0.94);
+  animation: camp-match-splash-letter 650ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.camp-match-splash__wordmark span:nth-child(2),
+.camp-match-splash__wordmark span:nth-child(9) {
+  color: var(--accent);
+}
+
+.camp-match-splash__space {
+  width: 0.38em;
+}
+
+.camp-match-splash__scene {
+  position: relative;
+  display: flex;
+  width: min(70vw, 18rem);
+  height: 13rem;
+  align-items: flex-end;
+  justify-content: center;
+  margin-top: 2.75rem;
+}
+
+.camp-match-splash__connection {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  place-items: center;
+  color: var(--accent);
+  transform: translateX(-50%);
+  animation: camp-match-splash-connection 1.2s ease-in-out 900ms both;
+}
+
+.camp-match-splash__connection::before {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 0 color-mix(in oklch, var(--accent) 28%, transparent);
+  content: "";
+  animation: camp-match-splash-glow 1.8s ease-in-out 1.2s infinite;
+}
+
+.camp-match-splash__connection svg {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  stroke-width: 2.6;
+}
+
+.camp-match-splash__people {
+  position: absolute;
+  top: 2.3rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 1.1rem;
+}
+
+.camp-match-splash__person {
+  width: 4.75rem;
+  height: 6.25rem;
+  stroke-width: 1.35;
+  opacity: 0;
+  animation: camp-match-splash-person 850ms cubic-bezier(0.22, 1, 0.36, 1) 1.2s forwards;
+}
+
+.camp-match-splash__person--left {
+  color: var(--primary);
+  transform: translateX(-1rem) rotate(-7deg);
+}
+
+.camp-match-splash__person--right {
+  color: var(--accent);
+  transform: translateX(1rem) rotate(7deg);
+  animation-delay: 1.35s;
+}
+
+.camp-match-splash__house {
+  position: absolute;
+  bottom: 0;
+  width: 8.5rem;
+  height: 7rem;
+  color: var(--primary);
+  fill: var(--primary-soft);
+  stroke-width: 1.5;
+  opacity: 0;
+  animation: camp-match-splash-house 850ms cubic-bezier(0.22, 1, 0.36, 1) 1.65s forwards;
+}
+
+.camp-match-splash__tagline {
+  margin: 1.5rem 0 0;
+  color: var(--muted-foreground);
+  font-size: clamp(0.85rem, 2.4vw, 1.05rem);
+  letter-spacing: 0.01em;
+  opacity: 0;
+  animation: camp-match-splash-tagline 700ms ease 2.2s forwards;
+}
+
+@keyframes camp-match-splash-letter {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes camp-match-splash-connection {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.55) rotate(-18deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) rotate(0);
+  }
+}
+
+@keyframes camp-match-splash-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--accent) 28%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 0.9rem color-mix(in oklch, var(--accent) 0%, transparent);
+  }
+}
+
+@keyframes camp-match-splash-person {
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0);
+  }
+}
+
+@keyframes camp-match-splash-house {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes camp-match-splash-tagline {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes camp-match-splash-exit {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camp-match-splash,
+  .camp-match-splash__wordmark span,
+  .camp-match-splash__connection,
+  .camp-match-splash__connection::before,
+  .camp-match-splash__person,
+  .camp-match-splash__house,
+  .camp-match-splash__tagline {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}

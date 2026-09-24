@@ -44,7 +44,6 @@ export const apiPropertyProvider: PropertyProvider = {
 
     return apiClient.post<UploadedPhoto[]>(`/properties/${id}/images`, {
       body: formData,
-      headers: { "Content-Type": "multipart/form-data" },
     });
   },
 
@@ -85,5 +84,6 @@ export const apiPropertyProvider: PropertyProvider = {
       },
     }),
 
-  getManagedProperty: (id: string) => apiClient.get<ScoutManagedProperty>(`/properties/managed/${id}`),
+  getManagedProperty: (id: string) =>
+    apiClient.get<ScoutManagedProperty>(`/properties/managed/${id}`),
 };

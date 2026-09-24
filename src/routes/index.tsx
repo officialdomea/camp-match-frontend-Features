@@ -147,7 +147,8 @@ function HomePage() {
           <div className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4">
             <Sparkles className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />
             <p className="text-sm text-muted-foreground">
-              You're viewing demo data. Bookings, messages and payments arrive in later phases.
+              You're viewing development data. Rent payment is not yet available in this environment
+              and must remain inside Camp Match when enabled.
             </p>
           </div>
         </div>

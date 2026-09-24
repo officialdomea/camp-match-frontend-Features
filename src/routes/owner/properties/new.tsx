@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Building2, MapPin, PoundSterling, Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Building2, ImagePlus, MapPin, PoundSterling, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/layout/app-shell";
 import { ErrorBanner } from "@/components/forms/error-banner";
@@ -22,6 +22,7 @@ import type { AccommodationType, PricePeriod } from "@/types/listing";
 import type { PropertyDraftInput } from "@/types/property";
 import type { AppError } from "@/lib/api/errors";
 import { normalizeError } from "@/lib/api/errors";
+import { validateImageFiles } from "@/lib/media";
 
 export const Route = createFileRoute("/owner/properties/new")({
   component: CreatePropertyPage,
@@ -80,6 +81,8 @@ function CreatePropertyPage() {
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<AppError | null>(null);
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [form, setForm] = useState<PropertyDraftInput>({
     title: "",
     description: "",
@@ -109,6 +112,10 @@ function CreatePropertyPage() {
   });
 
   const currentStep = steps[stepIndex] ?? steps[0];
+
+  useEffect(() => {
+    return () => photoPreviews.forEach((preview) => URL.revokeObjectURL(preview));
+  }, [photoPreviews]);
 
   const canContinue = useMemo(() => {
     if (currentStep.key === "basic") {
@@ -148,7 +155,8 @@ function CreatePropertyPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await propertyService.createProperty(form);
+      const created = await propertyService.createProperty({ ...form, photos: [] });
+      if (photoFiles.length) await propertyService.uploadImages(created.id, photoFiles);
       toast.success("Property submitted successfully");
       navigate({ to: "/owner/properties" });
     } catch (caught) {
@@ -156,6 +164,25 @@ function CreatePropertyPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handlePhotoSelection = (files: FileList | null) => {
+    if (!files?.length) return;
+    const selected = Array.from(files);
+    const validationError = validateImageFiles(selected);
+    if (validationError) {
+      setError({
+        code: "VALIDATION_ERROR",
+        title: "Photos need attention",
+        message: validationError,
+        retryable: false,
+      });
+      return;
+    }
+    photoPreviews.forEach((preview) => URL.revokeObjectURL(preview));
+    setPhotoFiles(selected);
+    setPhotoPreviews(selected.map((file) => URL.createObjectURL(file)));
+    setError(null);
   };
 
   const toggleAmenity = (amenity: string) => {
@@ -338,27 +365,37 @@ function CreatePropertyPage() {
       case "photos":
         return (
           <div className="space-y-4">
-            <div className="rounded-2xl border border-dashed border-border bg-surface p-6 text-center">
-              <Sparkles className="mx-auto size-8 text-primary" aria-hidden="true" />
-              <p className="mt-3 text-base font-medium">Add photos later</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                You can upload images after the property is created, or add one URL below.
+            <label className="block cursor-pointer rounded-2xl border border-dashed border-border bg-surface p-6 text-center focus-within:ring-2 focus-within:ring-ring">
+              <ImagePlus className="mx-auto size-8 text-primary" aria-hidden="true" />
+              <span className="mt-3 block text-base font-medium">Choose property photos</span>
+              <span className="mt-1 block text-sm text-muted-foreground">
+                JPG, PNG, or WebP up to 10 MB each. You can add up to 12 photos.
+              </span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="sr-only"
+                onChange={(event) => handlePhotoSelection(event.target.files)}
+              />
+            </label>
+            {photoPreviews.length ? (
+              <div className="grid gap-3 sm:grid-cols-3">
+                {photoPreviews.map((preview, index) => (
+                  <div key={preview} className="overflow-hidden rounded-xl border border-border">
+                    <img
+                      src={preview}
+                      alt={`Property preview ${index + 1}`}
+                      className="h-32 w-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No photos selected yet. You can still submit and add them later.
               </p>
-            </div>
-            <FormField
-              label="Primary photo URL"
-              value={form.photos[0]?.url ?? ""}
-              onChange={(event) =>
-                updateForm("photos", [
-                  {
-                    id: `temp-${Date.now()}`,
-                    url: event.target.value,
-                    alt: form.title || "Property photo",
-                    isPrimary: true,
-                  },
-                ])
-              }
-            />
+            )}
           </div>
         );
       case "review":

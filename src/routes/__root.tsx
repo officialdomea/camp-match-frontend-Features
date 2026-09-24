@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { CampMatchSplash } from "@/components/common/camp-match-splash";
 import { SavedListingsProvider } from "@/features/saved/hooks/use-saved-listings";
 import { AuthProvider } from "@/features/auth/hooks/use-auth";
 
@@ -142,7 +143,9 @@ function RootComponent() {
             Skip to content
           </a>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
+          <CampMatchSplash>
+            <Outlet />
+          </CampMatchSplash>
           <Toaster position="top-center" />
         </SavedListingsProvider>
       </AuthProvider>

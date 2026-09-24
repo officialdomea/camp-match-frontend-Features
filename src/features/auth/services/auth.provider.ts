@@ -18,11 +18,13 @@ export type AuthProvider = {
   getAccessToken(): string | null;
   refreshSession(): Promise<Session>;
   clearSession(): Promise<void>;
+  signInWithGoogle(): Promise<Session>;
   login(payload: LoginPayload): Promise<Session>;
   register(payload: RegisterPayload): Promise<Session>;
   verifyAccount(payload: VerifyPayload): Promise<AuthUser>;
   resendVerificationCode(): Promise<void>;
   selectRole(role: UserRole): Promise<AuthUser>;
   completeOnboarding(payload: OnboardingPayload): Promise<AuthUser>;
+  updateProfilePhoto(file: File): Promise<AuthUser>;
   logout(): Promise<void>;
 };

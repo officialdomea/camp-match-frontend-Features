@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api/client";
+import { createAppError } from "@/lib/api/errors";
 import type {
   AuthUser,
   LoginPayload,
@@ -17,6 +18,13 @@ import type { AuthProvider } from "./auth.provider";
 let currentSession: Session | null = null;
 
 export const apiAuthProvider: AuthProvider = {
+  async signInWithGoogle() {
+    throw createAppError("SERVER_ERROR", {
+      title: "Google sign-in is not connected",
+      message: "Google sign-in will be available when the authentication backend is connected.",
+    });
+  },
+
   async getCurrentUser() {
     const session = await apiClient.get<Session | null>("/auth/me");
     currentSession = session ?? currentSession;
@@ -78,6 +86,16 @@ export const apiAuthProvider: AuthProvider = {
 
   async completeOnboarding(payload: OnboardingPayload) {
     const user = await apiClient.post<AuthUser>("/auth/onboarding", { body: payload });
+    if (currentSession) {
+      currentSession = { ...currentSession, user };
+    }
+    return user;
+  },
+
+  async updateProfilePhoto(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const user = await apiClient.post<AuthUser>("/auth/profile/photo", { body: formData });
     if (currentSession) {
       currentSession = { ...currentSession, user };
     }

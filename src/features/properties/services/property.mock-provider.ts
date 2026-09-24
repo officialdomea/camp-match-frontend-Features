@@ -199,6 +199,7 @@ export const mockPropertyProvider: PropertyProvider = {
 
   async uploadImages(id, files: File[]) {
     const property = find(id);
+    // Mock-only preview references; the API provider returns durable object-storage references.
     const uploaded: UploadedPhoto[] = files.map((file, index) => ({
       id: `ph_${Math.random().toString(36).slice(2, 9)}`,
       url: URL.createObjectURL(file),

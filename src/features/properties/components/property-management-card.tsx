@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatNaira } from "@/lib/format";
 import type { ManagedProperty } from "@/types/property";
+import { SafeImage } from "@/components/common/safe-image";
 
 function toStatusTone(status: ManagedProperty["status"]) {
   switch (status) {
@@ -31,10 +32,11 @@ export function PropertyManagementCard({ property }: { property: ManagedProperty
     <Card className="overflow-hidden">
       <div className="grid gap-4 p-4 md:grid-cols-[180px_minmax(0,1fr)]">
         <div className="overflow-hidden rounded-xl bg-muted">
-          <img
-            src={property.photos[0]?.url ?? "https://images.unsplash.com/..."}
+          <SafeImage
+            src={property.photos[0]?.url}
             alt={property.photos[0]?.alt ?? property.title}
             className="h-full w-full object-cover"
+            fallbackLabel="No property image"
           />
         </div>
 

@@ -1,4 +1,5 @@
 import { createAppError } from "@/lib/api/errors";
+import { validateImageFile } from "@/lib/media";
 import type {
   AuthUser,
   LoginPayload,
@@ -15,26 +16,15 @@ import type { AuthProvider } from "./auth.provider";
  * No password is ever persisted; the "session" is an opaque mock token.
  */
 const SESSION_KEY = "campmatch.session";
-
-/** Any 6-digit code except this one is treated as invalid in the demo. */
-const DEMO_CODE = "123456";
-
-/**
- * Test-only demo account. It is intentionally generic and non-sensitive.
- * This is a mock fixture only and must never be mistaken for a real account.
- */
-const DEMO_ACCOUNT = {
-  email: "demo.student@example.com",
-  password: "demo-password-123",
-  fullName: "Demo Student",
-  phone: "+234 800 000 0000",
-} as const;
+const GOOGLE_PROFILE_KEY = "campmatch.mock-google-profile";
+// Temporary browser-only preview state. A real provider will return a durable media reference.
+const temporaryProfileImages = new Map<string, string>();
 
 function nextExpiry(): string {
   return new Date(Date.now() + 60 * 60 * 1000).toISOString();
 }
 
-function createDemoSession(): Session {
+function createDefaultSession(): Session {
   return {
     accessToken: "mock-access-token",
     refreshToken: "mock-refresh-token",
@@ -42,10 +32,10 @@ function createDemoSession(): Session {
     issuedAt: new Date().toISOString(),
     expiresAt: nextExpiry(),
     user: {
-      id: "usr_demo_student",
-      fullName: DEMO_ACCOUNT.fullName,
-      email: DEMO_ACCOUNT.email,
-      phone: DEMO_ACCOUNT.phone,
+      id: "usr_mock_student",
+      fullName: "Student User",
+      email: "student@campmatch.local",
+      phone: "+234 800 000 0000",
       role: "student",
       accountStatus: "active",
       emailVerified: true,
@@ -69,7 +59,10 @@ function readSession(): Session | null {
       window.localStorage.removeItem(SESSION_KEY);
       return null;
     }
-    return parsed;
+    const temporaryImage = temporaryProfileImages.get(parsed.user.id);
+    return temporaryImage
+      ? { ...parsed, user: { ...parsed.user, profileImageUrl: temporaryImage } }
+      : parsed;
   } catch {
     return null;
   }
@@ -84,8 +77,21 @@ function writeSession(session: Session): Session {
     refreshToken: session.refreshToken ?? "mock-refresh-token",
   };
 
+  const persistedUser = normalized.user.profileImageUrl?.startsWith("blob:")
+    ? (() => {
+        const { profileImageUrl: _temporaryImage, ...user } = normalized.user;
+        return user;
+      })()
+    : normalized.user;
+
   try {
-    window.localStorage.setItem(SESSION_KEY, JSON.stringify(normalized));
+    window.localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({ ...normalized, user: persistedUser }),
+    );
+    if (normalized.user.email === "google-user@campmatch.local") {
+      window.localStorage.setItem(GOOGLE_PROFILE_KEY, JSON.stringify(persistedUser));
+    }
   } catch {
     /* storage unavailable */
   }
@@ -125,11 +131,39 @@ function makeUser(input: {
 }
 
 export const mockAuthProvider: AuthProvider = {
+  async signInWithGoogle() {
+    await delay(null, 700);
+    let user: AuthUser | null = null;
+
+    try {
+      const stored = window.localStorage.getItem(GOOGLE_PROFILE_KEY);
+      user = stored ? (JSON.parse(stored) as AuthUser) : null;
+    } catch {
+      user = null;
+    }
+
+    return writeSession({
+      accessToken: "mock-google-access-token",
+      refreshToken: "mock-google-refresh-token",
+      tokenType: "bearer",
+      issuedAt: new Date().toISOString(),
+      expiresAt: nextExpiry(),
+      user: user ?? {
+        id: "usr_mock_google",
+        fullName: "Google User",
+        email: "google-user@campmatch.local",
+        phone: "",
+        role: null,
+        accountStatus: "active",
+        emailVerified: true,
+        onboardingComplete: false,
+        identityVerification: "not_started",
+      },
+    });
+  },
+
   async getCurrentUser() {
     const session = readSession();
-    if (session?.user.email.toLowerCase() === DEMO_ACCOUNT.email) {
-      return delay(writeSession(createDemoSession()).user, 300);
-    }
     return delay(session?.user ?? null, 300);
   },
 
@@ -166,13 +200,10 @@ export const mockAuthProvider: AuthProvider = {
 
   async login(payload: LoginPayload) {
     await delay(null);
-    if (payload.password.length < 8) {
+    const identifier = payload.identifier.trim();
+    if (!identifier || payload.password.length < 8) {
       throw createAppError("AUTHENTICATION_ERROR");
     }
-    const isDemoAccount =
-      payload.identifier.trim().toLowerCase() === DEMO_ACCOUNT.email &&
-      payload.password === DEMO_ACCOUNT.password;
-    if (isDemoAccount) return writeSession(createDemoSession());
 
     const existing = readSession();
     if (existing) {
@@ -183,7 +214,8 @@ export const mockAuthProvider: AuthProvider = {
         expiresAt: nextExpiry(),
       });
     }
-    const isEmail = payload.identifier.includes("@");
+
+    const isEmail = identifier.includes("@");
     return writeSession({
       accessToken: "mock-access-token",
       refreshToken: "mock-refresh-token",
@@ -193,8 +225,10 @@ export const mockAuthProvider: AuthProvider = {
       user: {
         ...makeUser({
           fullName: "Amara Okafor",
-          email: isEmail ? payload.identifier : "amara@example.com",
-          phone: isEmail ? "+234 800 000 0000" : payload.identifier,
+          email: isEmail
+            ? identifier
+            : `student-${identifier.replace(/\s+/g, "-").toLowerCase()}@campmatch.local`,
+          phone: isEmail ? "+234 800 000 0000" : identifier,
           emailVerified: true,
         }),
         role: "student",
@@ -217,7 +251,7 @@ export const mockAuthProvider: AuthProvider = {
 
   async verifyAccount(payload: VerifyPayload) {
     await delay(null);
-    if (payload.code !== DEMO_CODE) {
+    if (!/^\d{6}$/.test(payload.code)) {
       throw createAppError("VALIDATION_ERROR", {
         title: "That code didn't work",
         message: "The code you entered is incorrect or has expired.",
@@ -237,11 +271,35 @@ export const mockAuthProvider: AuthProvider = {
 
   async completeOnboarding(payload: OnboardingPayload) {
     await delay(null, 900);
-    return updateUser({
-      role: payload.role,
-      onboardingComplete: true,
-      identityVerification: payload.role === "student" ? "not_started" : "pending",
-    });
+    const nextUser =
+      payload.role === "student"
+        ? {
+            role: payload.role,
+            onboardingComplete: true,
+            identityVerification: "not_started" as const,
+            livingPreference: payload.data.livingPreference,
+            studentProfile: { ...payload.data },
+          }
+        : {
+            role: payload.role,
+            onboardingComplete: true,
+            identityVerification: "pending" as const,
+          };
+
+    return updateUser(nextUser);
+  },
+
+  async updateProfilePhoto(file: File) {
+    const error = validateImageFile(file);
+    if (error) {
+      throw createAppError("VALIDATION_ERROR", { title: "Invalid profile photo", message: error });
+    }
+    const session = requireSession();
+    const previous = temporaryProfileImages.get(session.user.id);
+    if (previous) URL.revokeObjectURL(previous);
+    const temporaryImage = URL.createObjectURL(file);
+    temporaryProfileImages.set(session.user.id, temporaryImage);
+    return delay(updateUser({ profileImageUrl: temporaryImage }), 700);
   },
 
   async logout() {

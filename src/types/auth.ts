@@ -14,6 +14,7 @@ export type IdentityVerificationStatus =
 export type AuthUser = {
   id: string;
   fullName: string;
+  profileImageUrl?: string;
   email: string;
   phone: string;
   role: UserRole | null;
@@ -21,6 +22,10 @@ export type AuthUser = {
   emailVerified: boolean;
   onboardingComplete: boolean;
   identityVerification: IdentityVerificationStatus;
+  /** Canonical student profile field reused by roommate matching logic. */
+  livingPreference?: LivingPreference;
+  /** Canonical onboarding snapshot keyed by the student profile. */
+  studentProfile?: StudentProfile;
 };
 
 export type AuthState =
@@ -46,13 +51,18 @@ export type VerifyPayload = {
   code: string;
 };
 
-export type StudentOnboardingPayload = {
+export type LivingPreference = "find-roommate" | "live-alone";
+
+export type StudentProfile = {
   universityId: string;
   accommodationTypes: string[];
   budgetMin: number;
   budgetMax: number;
   preferredArea: string;
+  livingPreference: LivingPreference;
 };
+
+export type StudentOnboardingPayload = StudentProfile;
 
 export type OwnerOnboardingPayload = {
   displayName: string;

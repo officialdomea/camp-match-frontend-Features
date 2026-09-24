@@ -91,6 +91,7 @@ export type PropertyVerification = {
 export type PropertyOwnerSummary = {
   id: string;
   name: string;
+  profileImageUrl?: string;
   verified: boolean;
   phoneMasked?: string | undefined;
 };

@@ -7,6 +7,7 @@ import { SelectableCard } from "@/components/forms/selectable-card";
 import { FormField } from "@/components/forms/form-field";
 import { ErrorBanner } from "@/components/forms/error-banner";
 import { VerificationStatus } from "@/features/onboarding/components/verification-status";
+import { EvidenceUploader } from "@/features/verification/components/evidence-uploader";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import { authService } from "@/features/auth/services/auth.service";
 import { createAppError, normalizeError, type AppError } from "@/lib/api/errors";
@@ -186,6 +187,9 @@ function OwnerOnboardingPage() {
                 ))}
               </div>
             </div>
+            {form.ownershipEvidenceType ? (
+              <EvidenceUploader kind="ownership" documentType={form.ownershipEvidenceType} />
+            ) : null}
           </div>
         ) : null}
 
@@ -206,6 +210,9 @@ function OwnerOnboardingPage() {
                 />
               ))}
             </div>
+            {form.identityDocumentType ? (
+              <EvidenceUploader kind="identity" documentType={form.identityDocumentType} />
+            ) : null}
             <VerificationStatus status="not_started" />
           </div>
         ) : null}

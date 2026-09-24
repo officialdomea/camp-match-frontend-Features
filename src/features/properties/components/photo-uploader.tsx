@@ -1,8 +1,10 @@
 import { ImagePlus, Loader2, Trash2, UploadCloud } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { ManagedProperty } from "@/types/property";
+import { validateImageFiles } from "@/lib/media";
+import { SafeImage } from "@/components/common/safe-image";
 
 export function PhotoUploader({
   property,
@@ -19,14 +21,28 @@ export function PhotoUploader({
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<string[]>(property.photos.map((photo) => photo.id));
+
+  useEffect(() => {
+    setPending(property.photos.map((photo) => photo.id));
+  }, [property.photos]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files?.length) return;
+    const selected = Array.from(files);
+    const validationError = validateImageFiles(selected, Math.max(1, 12 - property.photos.length));
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError(null);
     setUploading(true);
     try {
-      await onUpload(Array.from(files));
+      await onUpload(selected);
       setPending(property.photos.map((photo) => photo.id));
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "We couldn't upload those photos.");
     } finally {
       setUploading(false);
     }
@@ -48,6 +64,11 @@ export function PhotoUploader({
           <h3 className="text-base font-semibold">Photos</h3>
           <p className="text-sm text-muted-foreground">Add, reorder and choose the hero image.</p>
         </div>
+        {error ? (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        ) : null}
         <Button
           type="button"
           variant="outline"
@@ -87,7 +108,12 @@ export function PhotoUploader({
             return (
               <Card key={photo.id} className="overflow-hidden">
                 <div className="relative">
-                  <img src={photo.url} alt={photo.alt} className="h-36 w-full object-cover" />
+                  <SafeImage
+                    src={photo.url}
+                    alt={photo.alt}
+                    className="h-36 w-full object-cover"
+                    fallbackLabel="Image unavailable"
+                  />
                   {photo.isPrimary ? (
                     <span className="absolute left-2 top-2 rounded-full bg-foreground px-2 py-1 text-[10px] font-medium text-background">
                       Primary

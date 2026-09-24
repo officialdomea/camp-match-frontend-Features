@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { AuthLayout } from "@/features/auth/components/auth-layout";
+import { GoogleAuthButton } from "@/features/auth/components/google-auth-button";
 import { FormField } from "@/components/forms/form-field";
 import { PasswordField } from "@/components/forms/password-field";
 import { ErrorBanner } from "@/components/forms/error-banner";
@@ -37,6 +38,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<AppError | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
 
   const fieldErrors = error?.fieldErrors ?? {};
 
@@ -55,6 +57,20 @@ function LoginPage() {
     }
   }
 
+  async function handleGoogleSignIn() {
+    setError(null);
+    setGoogleSubmitting(true);
+    try {
+      const session = await authService.signInWithGoogle();
+      setUser(session.user);
+      navigate({ to: nextPathForUser(session.user) });
+    } catch (caught) {
+      setError(normalizeError(caught));
+    } finally {
+      setGoogleSubmitting(false);
+    }
+  }
+
   return (
     <AuthLayout
       title="Welcome back"
@@ -70,6 +86,16 @@ function LoginPage() {
     >
       <form className="space-y-4" onSubmit={handleSubmit} noValidate>
         <ErrorBanner error={error} />
+
+        <GoogleAuthButton onClick={() => void handleGoogleSignIn()} loading={googleSubmitting} />
+
+        <div className="flex items-center gap-3 py-1" aria-hidden="true">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Or
+          </span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
 
         <FormField
           label="Email or phone number"
@@ -96,7 +122,7 @@ function LoginPage() {
           type="submit"
           size="lg"
           className="h-12 w-full rounded-xl"
-          disabled={submitting || !identifier || !password}
+          disabled={submitting || googleSubmitting || !identifier || !password}
         >
           {submitting ? (
             <>

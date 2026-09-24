@@ -1,8 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
-import { navItems } from "./nav-items";
+import { useAuth } from "@/features/auth/hooks/use-auth";
+import { getNavItems } from "./nav-items";
 
 export function SidebarNav() {
+  const { user } = useAuth();
+  const navItems = getNavItems(user?.role);
+
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 border-r border-border bg-sidebar px-3 py-6 lg:block">
       <nav aria-label="Primary">

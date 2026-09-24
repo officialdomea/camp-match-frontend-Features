@@ -12,6 +12,7 @@ import { accommodationOptions } from "@/components/listings/accommodation-labels
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import { authService } from "@/features/auth/services/auth.service";
 import { normalizeError, type AppError } from "@/lib/api/errors";
+import type { LivingPreference } from "@/types/auth";
 
 export const Route = createFileRoute("/onboarding/student")({
   head: () => ({
@@ -41,6 +42,7 @@ function StudentOnboardingPage() {
   const [universityId, setUniversityId] = useState<string | null>(null);
   const [types, setTypes] = useState<string[]>([]);
   const [preferredArea, setPreferredArea] = useState("");
+  const [livingPreference, setLivingPreference] = useState<LivingPreference>("find-roommate");
   const [budget, setBudget] = useState({ min: 200_000, max: 800_000 });
   const [error, setError] = useState<AppError | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -62,6 +64,7 @@ function StudentOnboardingPage() {
           budgetMin: budget.min,
           budgetMax: budget.max,
           preferredArea,
+          livingPreference,
         },
       });
       setUser(updated);
@@ -75,6 +78,10 @@ function StudentOnboardingPage() {
   }
 
   const canContinue = step === 0 ? Boolean(universityId) : step === 1 ? types.length > 0 : true;
+  const livingOptions: Array<{ value: LivingPreference; label: string }> = [
+    { value: "find-roommate", label: "I want to find a roommate" },
+    { value: "live-alone", label: "I want to live alone" },
+  ];
 
   return (
     <OnboardingLayout
@@ -125,6 +132,17 @@ function StudentOnboardingPage() {
                         : [...prev, option.value],
                     )
                   }
+                  title={option.label}
+                />
+              ))}
+            </div>
+
+            <div role="group" aria-label="Living preference" className="space-y-3">
+              {livingOptions.map((option) => (
+                <SelectableCard
+                  key={option.value}
+                  selected={livingPreference === option.value}
+                  onSelect={() => setLivingPreference(option.value)}
                   title={option.label}
                 />
               ))}

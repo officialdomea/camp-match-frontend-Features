@@ -8,8 +8,10 @@ import {
   UserRound,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
+import { SafeImage } from "@/components/common/safe-image";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/states";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -99,7 +101,16 @@ function ScoutPropertyDetailPage() {
           <Card>
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground">Owner</p>
-              <p className="mt-2 font-semibold">{data.owner.name}</p>
+              <p className="mt-2 flex items-center gap-2 font-semibold">
+                <Avatar className="size-7">
+                  <AvatarImage
+                    src={data.owner.profileImageUrl}
+                    alt={`${data.owner.name} profile photo`}
+                  />
+                  <AvatarFallback>{data.owner.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                {data.owner.name}
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -159,7 +170,12 @@ function ScoutPropertyDetailPage() {
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {data.photos.map((photo) => (
                 <Card key={photo.id} className="overflow-hidden">
-                  <img src={photo.url} alt={photo.alt} className="h-40 w-full object-cover" />
+                  <SafeImage
+                    src={photo.url}
+                    alt={photo.alt}
+                    className="h-40 w-full object-cover"
+                    fallbackLabel="Image unavailable"
+                  />
                   <CardContent className="flex items-center justify-between p-3">
                     <span className="text-xs text-muted-foreground">{photo.reviewStatus}</span>
                     {photo.isPrimary ? <Badge variant="secondary">Primary</Badge> : null}

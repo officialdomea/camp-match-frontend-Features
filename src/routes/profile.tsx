@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ProfilePhoto } from "@/components/common/profile-photo";
+import { useAuth } from "@/features/auth/hooks/use-auth";
 import { useSavedListings } from "@/features/saved/hooks/use-saved-listings";
 
 export const Route = createFileRoute("/profile")({
@@ -25,6 +26,17 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   const { savedIds } = useSavedListings();
+  const { user, setUser } = useAuth();
+  const role = user?.role;
+  const name = user?.fullName ?? "Camp Match user";
+  const roleLabel =
+    role === "owner" ? "Property owner" : role === "scout" ? "House scout" : "Student";
+  const roleDescription =
+    role === "owner"
+      ? "Manage your owner account and property verification."
+      : role === "scout"
+        ? "Manage your scout profile and authorization status."
+        : "Manage your student profile and housing preferences.";
 
   return (
     <AppShell>
@@ -32,12 +44,10 @@ function ProfilePage() {
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Profile</h1>
 
         <div className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-5">
-          <Avatar className="size-14">
-            <AvatarFallback className="bg-primary-soft text-primary">AO</AvatarFallback>
-          </Avatar>
+          {user ? <ProfilePhoto user={user} editable onUserChange={setUser} /> : null}
           <div>
-            <p className="text-base font-semibold">Amara Obi</p>
-            <p className="text-sm text-muted-foreground">University of Calabar · 300 level</p>
+            <p className="text-base font-semibold">{name}</p>
+            <p className="text-sm text-muted-foreground">{roleLabel}</p>
           </div>
         </div>
 
@@ -55,7 +65,8 @@ function ProfilePage() {
         <div className="flex items-start gap-3 rounded-2xl border border-border bg-primary-soft p-4">
           <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
           <p className="text-sm text-foreground">
-            Identity verification, accounts and settings arrive in a later build phase.
+            {roleDescription} Identity verification, accounts and settings arrive in a later build
+            phase.
           </p>
         </div>
       </div>

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useProperty } from "@/features/properties/hooks/use-properties";
+import { PhotoUploader } from "@/features/properties/components/photo-uploader";
 import { propertyService } from "@/features/properties/services/property.service";
 import { normalizeError, type AppError } from "@/lib/api/errors";
 import type { AccommodationType, PricePeriod } from "@/types/property";
@@ -45,9 +46,14 @@ function EditPropertyPage() {
   const [error, setError] = useState<AppError | null>(null);
 
   const isAccommodationType = (value: string): value is AccommodationType =>
-    ["single-room", "self-contained", "shared-apartment", "one-bedroom", "two-bedroom", "hostel"].includes(
-      value as AccommodationType,
-    );
+    [
+      "single-room",
+      "self-contained",
+      "shared-apartment",
+      "one-bedroom",
+      "two-bedroom",
+      "hostel",
+    ].includes(value as AccommodationType);
 
   const isPricePeriod = (value: string): value is PricePeriod =>
     ["year", "semester", "month"].includes(value as PricePeriod);
@@ -194,6 +200,27 @@ function EditPropertyPage() {
               </div>
             </div>
           </div>
+        </Card>
+        <Card className="p-4">
+          <PhotoUploader
+            property={data}
+            onUpload={async (files) => {
+              await propertyService.uploadImages(data.id, files);
+              await refetch();
+            }}
+            onRemove={async (photoId) => {
+              await propertyService.deleteImage(data.id, photoId);
+              await refetch();
+            }}
+            onPrimaryChange={async (photoId) => {
+              await propertyService.setPrimaryImage(data.id, photoId);
+              await refetch();
+            }}
+            onReorder={async (photoIds) => {
+              await propertyService.reorderImages(data.id, photoIds);
+              await refetch();
+            }}
+          />
         </Card>
       </div>
     </AppShell>

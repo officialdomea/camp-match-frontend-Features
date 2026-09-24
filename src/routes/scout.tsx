@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { Activity, ArrowRight, BarChart3, MapPinned, Users } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/states";
+import { ProfilePhoto } from "@/components/common/profile-photo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerificationStatus } from "@/features/onboarding/components/verification-status";
@@ -27,8 +28,11 @@ export const Route = createFileRoute("/scout")({
 });
 
 function ScoutHomePage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { data, isPending, isError, refetch } = useScoutDashboard();
+  const pathname = useLocation({ select: (location) => location.pathname });
+
+  if (pathname !== "/scout") return <Outlet />;
 
   return (
     <AppShell>
@@ -44,6 +48,8 @@ function ScoutHomePage() {
             Review your managed properties, recent enquiries and property updates.
           </p>
         </div>
+
+        {user ? <ProfilePhoto user={user} editable onUserChange={setUser} /> : null}
 
         <VerificationStatus status={user?.identityVerification ?? "pending"} />
 
