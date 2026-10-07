@@ -1,5 +1,6 @@
 import type { Listing, ListingFeature, Verification } from "@/types/listing";
 import { mockScouts } from "@/data/mock/scouts";
+import { isSupportedUniversityId } from "@/data/mock/universities";
 
 import listing1 from "@/assets/listing-1.jpg";
 import listing2 from "@/assets/listing-2.jpg";
@@ -71,7 +72,7 @@ const pendingVerification: Verification = {
 const img = (id: string, url: string, alt: string) => ({ id, url, alt });
 
 /** DEMO DATA — replace with GET /api/v1/listings */
-export const mockListings: Listing[] = [
+const allMockListings: Listing[] = [
   {
     id: "listing_001",
     title: "Modern self-contained apartment at Satellite Town",
@@ -91,10 +92,10 @@ export const mockListings: Listing[] = [
     ],
     location: {
       area: "Satellite Town",
-      city: "Calabar",
-      state: "Cross River",
-      universityId: "uni_unical",
-      universityName: "University of Calabar",
+      city: "Benin City",
+      state: "Edo",
+      universityId: "uni_uniben",
+      universityName: "University of Benin",
       distanceFromCampusKm: 1.2,
       latitude: 4.9553,
       longitude: 8.3222,
@@ -136,7 +137,7 @@ export const mockListings: Listing[] = [
       area: "Etta Agbor",
       city: "Calabar",
       state: "Cross River",
-      universityId: "uni_unical",
+      universityId: "UNICAL",
       universityName: "University of Calabar",
       distanceFromCampusKm: 0.8,
       latitude: 4.9601,
@@ -172,10 +173,10 @@ export const mockListings: Listing[] = [
     ],
     location: {
       area: "Ekosodin",
-      city: "Benin City",
-      state: "Edo",
-      universityId: "uni_uniben",
-      universityName: "University of Benin",
+      city: "Calabar",
+      state: "Cross River",
+      universityId: "UNICAL",
+      universityName: "University of Calabar",
       distanceFromCampusKm: 1.9,
       latitude: 6.4021,
       longitude: 5.6155,
@@ -301,7 +302,7 @@ export const mockListings: Listing[] = [
       area: "Akoka",
       city: "Lagos",
       state: "Lagos",
-      universityId: "uni_unilag",
+      universityId: "UNILAG",
       universityName: "University of Lagos",
       distanceFromCampusKm: 1.1,
       latitude: 6.5185,
@@ -380,7 +381,7 @@ export const mockListings: Listing[] = [
       area: "Marian Road",
       city: "Calabar",
       state: "Cross River",
-      universityId: "uni_unical",
+      universityId: "UNICAL",
       universityName: "University of Calabar",
       distanceFromCampusKm: 3.4,
       latitude: 4.9721,
@@ -406,3 +407,7 @@ export const mockListings: Listing[] = [
     createdAt: "2026-08-27T15:40:00Z",
   },
 ];
+
+export const mockListings = allMockListings.filter((listing) =>
+  isSupportedUniversityId(listing.location.universityId),
+);

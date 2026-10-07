@@ -115,7 +115,7 @@ export const mockManagedProperties: ManagedProperty[] = [
     status: "active",
     owner: DEMO_OWNER,
     location: {
-      universityId: "uni_unical",
+      universityId: "UNICAL",
       universityName: "University of Calabar",
       area: "Satellite Town",
       address: "14 Ekpo Abasi Close, Satellite Town",
@@ -234,7 +234,7 @@ export const mockManagedProperties: ManagedProperty[] = [
     status: "changes_requested",
     owner: DEMO_OWNER,
     location: {
-      universityId: "uni_unical",
+      universityId: "UNICAL",
       universityName: "University of Calabar",
       area: "Etta Agbor",
       address: "22 Etta Agbor Road",
@@ -277,7 +277,7 @@ export const mockManagedProperties: ManagedProperty[] = [
     status: "active",
     owner: DEMO_OWNER,
     location: {
-      universityId: "uni_unical",
+      universityId: "UNICAL",
       universityName: "University of Calabar",
       area: "Marian Road",
       address: "5 Marian Road",
@@ -367,7 +367,7 @@ export const mockManagedProperties: ManagedProperty[] = [
     status: "suspended",
     owner: DEMO_OWNER,
     location: {
-      universityId: "uni_unilag",
+      universityId: "UNILAG",
       universityName: "University of Lagos",
       area: "Akoka",
       address: "18 Akoka Street",

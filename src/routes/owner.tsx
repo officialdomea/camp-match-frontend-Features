@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { Building2, ClipboardList, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState } from "@/components/common/states";
@@ -56,9 +56,11 @@ function OwnerHomePage() {
           title="No properties yet"
           description="Once verification clears you'll be able to publish your first listing here."
           action={
-            <Button disabled>
-              <Plus className="size-4" aria-hidden="true" />
-              Add property
+            <Button asChild>
+              <Link to="/owner/properties/new">
+                <Plus className="size-4" aria-hidden="true" />
+                Add property
+              </Link>
             </Button>
           }
         />

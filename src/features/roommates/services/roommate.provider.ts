@@ -13,8 +13,8 @@ export type RoommateProvider = {
   getCandidates(studentId?: string): Promise<MatchCandidate[]>;
   getRequests(studentId?: string): Promise<MatchRequest[]>;
   getConfirmedMatches(studentId?: string): Promise<ConfirmedMatch[]>;
-  sendMatchRequest(targetStudentId: string, actingUserId: string): Promise<MatchRequest>;
-  cancelMatchRequest(requestId: string, actingUserId: string): Promise<void>;
+  sendMatchRequest(targetStudentId: string): Promise<MatchRequest>;
+  cancelMatchRequest(requestId: string): Promise<void>;
   acceptMatchRequest(requestId: string, actingUserId: string): Promise<MatchRequest>;
-  declineMatchRequest(requestId: string, actingUserId: string): Promise<MatchRequest>;
+  declineMatchRequest(requestId: string): Promise<MatchRequest>;
 };

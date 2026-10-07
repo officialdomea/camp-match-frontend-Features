@@ -11,8 +11,9 @@ import { ErrorBanner } from "@/components/forms/error-banner";
 import { accommodationOptions } from "@/components/listings/accommodation-labels";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import { authService } from "@/features/auth/services/auth.service";
-import { normalizeError, type AppError } from "@/lib/api/errors";
+import { createAppError, normalizeError, type AppError } from "@/lib/api/errors";
 import type { LivingPreference } from "@/types/auth";
+import { findUniversityById } from "@/data/mock/universities";
 
 export const Route = createFileRoute("/onboarding/student")({
   head: () => ({
@@ -41,6 +42,8 @@ function StudentOnboardingPage() {
   const [step, setStep] = useState(0);
   const [universityId, setUniversityId] = useState<string | null>(null);
   const [types, setTypes] = useState<string[]>([]);
+  const [department, setDepartment] = useState("");
+  const [academicLevel, setAcademicLevel] = useState("200");
   const [preferredArea, setPreferredArea] = useState("");
   const [livingPreference, setLivingPreference] = useState<LivingPreference>("find-roommate");
   const [budget, setBudget] = useState({ min: 200_000, max: 800_000 });
@@ -53,6 +56,15 @@ function StudentOnboardingPage() {
 
   async function finish() {
     if (!universityId) return;
+    const selectedUniversity = findUniversityById(universityId);
+    if (!selectedUniversity) {
+      setError(
+        createAppError("VALIDATION_ERROR", {
+          fieldErrors: { universityId: "Choose a supported university." },
+        }),
+      );
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -60,6 +72,9 @@ function StudentOnboardingPage() {
         role: "student",
         data: {
           universityId,
+          state: selectedUniversity.state,
+          department: department.trim(),
+          academicLevel: academicLevel.trim(),
           accommodationTypes: types,
           budgetMin: budget.min,
           budgetMax: budget.max,
@@ -99,7 +114,7 @@ function StudentOnboardingPage() {
         step === 0
           ? "We use this to show homes closest to your campus."
           : step === 1
-            ? "Pick every option you'd consider — you can change this later."
+            ? "Add your academic profile so roommate discovery and communication stay relevant."
             : "We'll prioritise homes inside this range."
       }
       footer={
@@ -119,6 +134,22 @@ function StudentOnboardingPage() {
 
         {step === 1 ? (
           <div className="space-y-5">
+            <FormField
+              label="Department"
+              name="department"
+              placeholder="e.g. Computer Engineering"
+              value={department}
+              onChange={(event) => setDepartment(event.target.value)}
+            />
+
+            <FormField
+              label="Academic level"
+              name="academicLevel"
+              placeholder="e.g. 200"
+              value={academicLevel}
+              onChange={(event) => setAcademicLevel(event.target.value)}
+            />
+
             <div role="group" aria-label="Accommodation types" className="space-y-3">
               {accommodationOptions.map((option) => (
                 <SelectableCard

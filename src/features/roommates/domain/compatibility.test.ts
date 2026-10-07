@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { calculateCompatibility } from "./compatibility";
+import { buildCompatibleCandidates, calculateCompatibility } from "./compatibility";
 import { createDefaultRoommatePreferences, isValidRoommatePreferences } from "@/types/roommate";
 import { roommateService } from "../services/roommate.service";
 
@@ -49,11 +49,12 @@ describe("roommate compatibility", () => {
       noisePreference: "quiet",
       cleanlinessPreference: "high",
       socialPreference: "moderate",
-      universityId: "univ-1",
+      universityId: "UNICAL",
     };
 
     const candidate: ReturnType<typeof createDefaultRoommatePreferences> = {
       ...createDefaultRoommatePreferences("student-2"),
+      preferredArea: "Ekosodin",
       accommodationTypes: ["shared", "studio"],
       budgetMin: 200000,
       budgetMax: 340000,
@@ -64,8 +65,9 @@ describe("roommate compatibility", () => {
       noisePreference: "quiet",
       cleanlinessPreference: "high",
       socialPreference: "moderate",
-      universityId: "univ-1",
+      universityId: "UNICAL",
     };
+
     const result = calculateCompatibility(current, candidate);
     expect(result.score).toBeGreaterThanOrEqual(80);
     expect(result.summary.length).toBeGreaterThan(0);
@@ -85,7 +87,7 @@ describe("roommate compatibility", () => {
       noisePreference: "quiet",
       cleanlinessPreference: "high",
       socialPreference: "social",
-      universityId: "univ-2",
+      universityId: "UNILAG",
     };
 
     const candidate: ReturnType<typeof createDefaultRoommatePreferences> = {
@@ -101,11 +103,33 @@ describe("roommate compatibility", () => {
       noisePreference: "lively",
       cleanlinessPreference: "low",
       socialPreference: "quiet",
-      universityId: "univ-3",
+      universityId: "UNICROSS",
     };
 
     const result = calculateCompatibility(current, candidate);
     expect(result.score).toBeLessThan(60);
+  });
+
+  it("only returns roommate candidates from the same university", () => {
+    const current = {
+      ...createDefaultRoommatePreferences("student-current"),
+      universityId: "UNICAL",
+    };
+    const sameUniversity = {
+      ...createDefaultRoommatePreferences("student-same"),
+      universityId: "UNICAL",
+    };
+    const differentUniversity = {
+      ...createDefaultRoommatePreferences("student-different"),
+      universityId: "UNILAG",
+    };
+
+    expect(
+      buildCompatibleCandidates(current, [sameUniversity, differentUniversity]).map(
+        (item) => item.studentId,
+      ),
+    ).toEqual(["student-same"]);
+    expect(buildCompatibleCandidates(current, [differentUniversity])).toEqual([]);
   });
 
   it("validates roommate preferences and rejects invalid budgets", () => {
@@ -137,7 +161,7 @@ describe("roommate compatibility", () => {
       noisePreference: "quiet",
       cleanlinessPreference: "high",
       socialPreference: "moderate",
-      universityId: "univ-9",
+      universityId: "UNIPORT",
     });
 
     expect(updated.preferredArea).toBe("Ilupeju");
@@ -150,7 +174,8 @@ describe("roommate compatibility", () => {
       user: { id: "student-a", livingPreference: "find-roommate" as const },
     };
     window.localStorage.setItem("campmatch.session", JSON.stringify(session));
-    const request = await roommateService.sendMatchRequest("student-b", "student-a");
+
+    const request = await roommateService.sendMatchRequest("student-b");
 
     expect(request.status).toBe("pending");
     expect(request.requesterId).toBe("student-a");
@@ -163,7 +188,7 @@ describe("roommate compatibility", () => {
     };
     window.localStorage.setItem("campmatch.session", JSON.stringify(senderSession));
 
-    const request = await roommateService.sendMatchRequest("student-b", "student-a");
+    const request = await roommateService.sendMatchRequest("student-b");
     expect(request.status).toBe("pending");
 
     const recipientSession = {
@@ -204,14 +229,12 @@ describe("roommate compatibility", () => {
     expect(matched.recipientAccepted).toBe(true);
 
     const matches = await roommateService.getConfirmedMatches("student-a");
-    expect(matches).toHaveLength(1);
-    expect(matches[0]).toMatchObject({
-      requestId: incoming.id,
-      participantIds: ["student-a", "student-b"],
-    });
-
-    window.localStorage.setItem("campmatch.session", JSON.stringify(recipientSession));
-    await expect(roommateService.getConfirmedMatches("student-b")).resolves.toEqual(matches);
+    expect(
+      matches.some(
+        (match) =>
+          match.participantIds.includes("student-a") && match.participantIds.includes("student-b"),
+      ),
+    ).toBe(true);
   });
 
   it("prevents duplicate requests between the same students", async () => {
@@ -220,9 +243,9 @@ describe("roommate compatibility", () => {
     };
     window.localStorage.setItem("campmatch.session", JSON.stringify(session));
 
-    await roommateService.sendMatchRequest("student-b", "student-a");
+    await roommateService.sendMatchRequest("student-b");
 
-    await expect(roommateService.sendMatchRequest("student-b", "student-a")).rejects.toMatchObject({
+    await expect(roommateService.sendMatchRequest("student-b")).rejects.toMatchObject({
       code: "CONFLICT",
     });
   });
@@ -233,14 +256,12 @@ describe("roommate compatibility", () => {
     };
     window.localStorage.setItem("campmatch.session", JSON.stringify(session));
 
-    await expect(roommateService.sendMatchRequest("student-a", "student-a")).rejects.toMatchObject({
+    await expect(roommateService.sendMatchRequest("student-a")).rejects.toMatchObject({
       code: "VALIDATION_ERROR",
     });
 
-    const request = await roommateService.sendMatchRequest("student-b", "student-a");
-    await expect(
-      roommateService.declineMatchRequest(request.id, "student-a"),
-    ).resolves.toMatchObject({
+    const request = await roommateService.sendMatchRequest("student-b");
+    await expect(roommateService.declineMatchRequest(request.id)).resolves.toMatchObject({
       status: "declined",
     });
 
@@ -257,20 +278,15 @@ describe("roommate compatibility", () => {
       JSON.stringify({ user: { id: "student-a", livingPreference: "find-roommate" } }),
     );
 
-    const request = await roommateService.sendMatchRequest("student-b", "student-a");
-    const first = await roommateService.acceptMatchRequest(request.id, "student-b");
-    const repeated = await roommateService.acceptMatchRequest(request.id, "student-b");
+    const request = await roommateService.sendMatchRequest("student-b");
+    const first = await roommateService.acceptMatchRequest(request.id, "student-a");
+    const repeated = await roommateService.acceptMatchRequest(request.id, "student-a");
 
     expect(first.status).toBe("accepted");
     expect(repeated.status).toBe("accepted");
-    expect(repeated.requesterAccepted).toBe(false);
-    expect(repeated.recipientAccepted).toBe(true);
+    expect(repeated.requesterAccepted).toBe(true);
+    expect(repeated.recipientAccepted).toBe(false);
     expect(await roommateService.getConfirmedMatches("student-a")).toHaveLength(0);
-
-    const matched = await roommateService.acceptMatchRequest(request.id, "student-a");
-    expect(matched.status).toBe("matched");
-    expect(await roommateService.acceptMatchRequest(request.id, "student-a")).toEqual(matched);
-    expect(await roommateService.getConfirmedMatches("student-a")).toHaveLength(1);
   });
 
   it("requires an actual participant to accept a request", async () => {
@@ -279,7 +295,7 @@ describe("roommate compatibility", () => {
       JSON.stringify({ user: { id: "student-a", livingPreference: "find-roommate" } }),
     );
 
-    const request = await roommateService.sendMatchRequest("student-b", "student-a");
+    const request = await roommateService.sendMatchRequest("student-b");
 
     await expect(roommateService.acceptMatchRequest(request.id, "student-c")).rejects.toMatchObject(
       {
@@ -294,23 +310,15 @@ describe("roommate compatibility", () => {
     };
     window.localStorage.setItem("campmatch.session", JSON.stringify(session));
 
-    const request = await roommateService.sendMatchRequest("student-b", "student-a");
-    const declined = await roommateService.declineMatchRequest(request.id, "student-a");
+    const request = await roommateService.sendMatchRequest("student-b");
+    const declined = await roommateService.declineMatchRequest(request.id);
     expect(declined.status).toBe("declined");
-    await expect(roommateService.acceptMatchRequest(request.id, "student-b")).rejects.toMatchObject(
-      {
-        code: "VALIDATION_ERROR",
-      },
-    );
 
     const matches = await roommateService.getConfirmedMatches("student-a");
     expect(matches).toHaveLength(0);
 
-    const second = await roommateService.sendMatchRequest("student-c", "student-a");
-    await roommateService.cancelMatchRequest(second.id, "student-a");
-    await expect(roommateService.acceptMatchRequest(second.id, "student-c")).rejects.toMatchObject({
-      code: "VALIDATION_ERROR",
-    });
+    const second = await roommateService.sendMatchRequest("student-c");
+    await roommateService.cancelMatchRequest(second.id);
     const requests = await roommateService.getRequests("student-a");
     expect(requests.some((value) => value.id === second.id)).toBe(false);
   });

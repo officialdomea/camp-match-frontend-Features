@@ -9,6 +9,8 @@ import type {
   UserRole,
   VerifyPayload,
 } from "@/types/auth";
+import type { ProfileUpdateInput } from "@/types/profile";
+import { findUniversityById, isSupportedUniversityId } from "@/data/mock/universities";
 import type { AuthProvider } from "./auth.provider";
 
 /**
@@ -284,9 +286,72 @@ export const mockAuthProvider: AuthProvider = {
             role: payload.role,
             onboardingComplete: true,
             identityVerification: "pending" as const,
+            ...(payload.role === "owner"
+              ? { ownerProfile: { ...payload.data } }
+              : { scoutProfile: { ...payload.data } }),
           };
 
     return updateUser(nextUser);
+  },
+
+  async updateUserProfile(input: ProfileUpdateInput) {
+    const user = requireSession().user;
+    if (user.role !== input.role) {
+      throw createAppError("FORBIDDEN", {
+        title: "Profile update not allowed",
+        message: "You can only update profile information for your current account role.",
+      });
+    }
+
+    if (input.role === "student") {
+      if (!isSupportedUniversityId(input.studentProfile.universityId)) {
+        throw createAppError("VALIDATION_ERROR", {
+          title: "Choose a supported university",
+          fieldErrors: { universityId: "Select a Camp Match university." },
+        });
+      }
+      const department = input.studentProfile.department?.trim() ?? "";
+      const academicLevel = input.studentProfile.academicLevel?.trim();
+      const university = findUniversityById(input.studentProfile.universityId);
+      if (!university) throw createAppError("VALIDATION_ERROR");
+      return updateUser({
+        fullName: input.fullName.trim(),
+        phone: input.phone.trim(),
+        studentProfile: {
+          ...input.studentProfile,
+          state: university.state,
+          department,
+          ...(academicLevel === undefined ? {} : { academicLevel }),
+          preferredArea: input.studentProfile.preferredArea.trim(),
+        },
+      });
+    }
+
+    if (input.role === "owner") {
+      const profile = user.ownerProfile;
+      return updateUser({
+        ownerProfile: {
+          displayName: input.ownerProfile.displayName.trim(),
+          contactPhone: input.ownerProfile.contactPhone.trim(),
+          city: input.ownerProfile.city.trim(),
+          ownershipEvidenceType: profile?.ownershipEvidenceType ?? "",
+          propertyAddress: profile?.propertyAddress ?? "",
+          identityDocumentType: profile?.identityDocumentType ?? "",
+        },
+      });
+    }
+
+    const profile = user.scoutProfile;
+    return updateUser({
+      scoutProfile: {
+        displayName: input.scoutProfile.displayName.trim(),
+        contactPhone: input.scoutProfile.contactPhone.trim(),
+        city: input.scoutProfile.city.trim(),
+        coverageAreas: input.scoutProfile.coverageAreas.trim(),
+        experience: input.scoutProfile.experience,
+        identityDocumentType: profile?.identityDocumentType ?? "",
+      },
+    });
   },
 
   async updateProfilePhoto(file: File) {

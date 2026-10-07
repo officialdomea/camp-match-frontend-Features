@@ -1,9 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ShieldCheck } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { ErrorState, LoadingState } from "@/components/common/states";
 import { AppShell } from "@/components/layout/app-shell";
-import { ProfilePhoto } from "@/components/common/profile-photo";
-import { useAuth } from "@/features/auth/hooks/use-auth";
-import { useSavedListings } from "@/features/saved/hooks/use-saved-listings";
+import { authKeys, useAuth } from "@/features/auth/hooks/use-auth";
+import { OwnerProfile } from "@/features/profile/components/owner-profile";
+import { ProfileShell } from "@/features/profile/components/profile-shell";
+import { ScoutProfile } from "@/features/profile/components/scout-profile";
+import { StudentProfile } from "@/features/profile/components/student-profile";
+import { profileService } from "@/features/profile/services/profile.service";
+import type { ProfileUpdateInput } from "@/types/profile";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -11,13 +17,12 @@ export const Route = createFileRoute("/profile")({
       { title: "Your profile — Camp Match" },
       {
         name: "description",
-        content:
-          "Manage your Camp Match student profile, university and saved housing preferences.",
+        content: "Manage your role-specific Camp Match profile and account.",
       },
       { property: "og:title", content: "Your profile — Camp Match" },
       {
         property: "og:description",
-        content: "Manage your Camp Match student profile and preferences.",
+        content: "Manage your role-specific Camp Match profile and account.",
       },
     ],
   }),
@@ -25,51 +30,88 @@ export const Route = createFileRoute("/profile")({
 });
 
 function ProfilePage() {
-  const { savedIds } = useSavedListings();
   const { user, setUser } = useAuth();
-  const role = user?.role;
-  const name = user?.fullName ?? "Camp Match user";
-  const roleLabel =
-    role === "owner" ? "Property owner" : role === "scout" ? "House scout" : "Student";
-  const roleDescription =
-    role === "owner"
-      ? "Manage your owner account and property verification."
-      : role === "scout"
-        ? "Manage your scout profile and authorization status."
-        : "Manage your student profile and housing preferences.";
+  const queryClient = useQueryClient();
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const profile = useQuery({
+    queryKey: ["profile", user?.id, user?.role],
+    queryFn: () => profileService.getProfile(user!.role!),
+    enabled: Boolean(user?.id && user.role),
+    retry: false,
+  });
+  const update = useMutation({
+    mutationFn: (input: ProfileUpdateInput) => profileService.updateProfile(input),
+    onSuccess: (updatedUser) => {
+      setUser(updatedUser);
+      queryClient.setQueryData(["profile", updatedUser.id, updatedUser.role], updatedUser);
+      queryClient.setQueryData(authKeys.currentUser, updatedUser);
+    },
+    onError: (error: Error) => setSaveError(error.message),
+  });
+
+  const saveProfile = async (input: ProfileUpdateInput) => {
+    setSaveError(null);
+    await update.mutateAsync(input);
+  };
+  const currentUser = profile.data ?? user;
+
+  if (!currentUser?.role) {
+    return (
+      <AppShell>
+        <LoadingState label="Loading your profile" />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
-      <div className="space-y-6 px-4 py-6 sm:px-6">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Profile</h1>
-
-        <div className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-5">
-          {user ? <ProfilePhoto user={user} editable onUserChange={setUser} /> : null}
-          <div>
-            <p className="text-base font-semibold">{name}</p>
-            <p className="text-sm text-muted-foreground">{roleLabel}</p>
-          </div>
-        </div>
-
-        <dl className="grid grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-border bg-surface p-4">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Saved homes</dt>
-            <dd className="mt-1 text-2xl font-semibold">{savedIds.length}</dd>
-          </div>
-          <div className="rounded-2xl border border-border bg-surface p-4">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Bookings</dt>
-            <dd className="mt-1 text-2xl font-semibold">0</dd>
-          </div>
-        </dl>
-
-        <div className="flex items-start gap-3 rounded-2xl border border-border bg-primary-soft p-4">
-          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
-          <p className="text-sm text-foreground">
-            {roleDescription} Identity verification, accounts and settings arrive in a later build
-            phase.
-          </p>
-        </div>
-      </div>
+      {profile.isPending ? (
+        <LoadingState label="Loading your profile" />
+      ) : profile.isError ? (
+        <ErrorState title="We couldn't load your profile" onRetry={() => void profile.refetch()} />
+      ) : currentUser.role === "student" ? (
+        <ProfileShell
+          user={currentUser}
+          displayName={currentUser.fullName}
+          roleLabel="Student"
+          onUserChange={setUser}
+        >
+          <StudentProfile
+            user={currentUser}
+            saving={update.isPending}
+            error={saveError}
+            onSave={saveProfile}
+          />
+        </ProfileShell>
+      ) : currentUser.role === "owner" ? (
+        <ProfileShell
+          user={currentUser}
+          displayName={currentUser.ownerProfile?.displayName || currentUser.fullName}
+          roleLabel="Property owner"
+          onUserChange={setUser}
+        >
+          <OwnerProfile
+            user={currentUser}
+            saving={update.isPending}
+            error={saveError}
+            onSave={saveProfile}
+          />
+        </ProfileShell>
+      ) : (
+        <ProfileShell
+          user={currentUser}
+          displayName={currentUser.scoutProfile?.displayName || currentUser.fullName}
+          roleLabel="House scout"
+          onUserChange={setUser}
+        >
+          <ScoutProfile
+            user={currentUser}
+            saving={update.isPending}
+            error={saveError}
+            onSave={saveProfile}
+          />
+        </ProfileShell>
+      )}
     </AppShell>
   );
 }

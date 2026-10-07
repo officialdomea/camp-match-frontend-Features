@@ -68,7 +68,6 @@ export type MatchRequest = {
 
 export type ConfirmedMatch = {
   id: string;
-  requestId: string;
   participantIds: [string, string];
   status: "matched";
   matchedAt: string;
@@ -120,7 +119,7 @@ export function getRoommateEligibility(
 export function createDefaultRoommatePreferences(studentId: string): RoommatePreferences {
   return {
     studentId,
-    universityId: "university-not-set",
+    universityId: "UNICAL",
     preferredArea: "Ekosodin",
     accommodationTypes: ["shared"],
     budgetMin: 200000,

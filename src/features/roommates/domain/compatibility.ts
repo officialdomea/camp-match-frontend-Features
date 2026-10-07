@@ -1,5 +1,9 @@
 import type { CompatibilityResult, RoommatePreferences } from "@/types/roommate";
 
+function normalizeUniversityId(value: string) {
+  return value.trim().toUpperCase();
+}
+
 function sameArea(a: string, b: string) {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
@@ -26,6 +30,17 @@ export function calculateCompatibility(
     matchedPreferences.push(`Both prefer ${current.preferredArea || "the same area"}`);
   } else if (current.preferredArea && candidate.preferredArea) {
     differences.push("Preferred areas differ");
+  }
+
+  if (
+    current.universityId &&
+    candidate.universityId &&
+    normalizeUniversityId(current.universityId) === normalizeUniversityId(candidate.universityId)
+  ) {
+    score += 20;
+    matchedPreferences.push("Same university match");
+  } else if (current.universityId && candidate.universityId) {
+    differences.push("Universities differ");
   }
 
   if (
@@ -135,8 +150,17 @@ export function buildCompatibleCandidates(
   current: RoommatePreferences,
   candidates: RoommatePreferences[],
 ): Array<RoommatePreferences & { compatibility: CompatibilityResult }> {
+  if (!current.universityId) return [];
+
   return candidates
     .filter((candidate) => candidate.studentId !== current.studentId)
+    .filter((candidate) => {
+      return (
+        !!candidate.universityId &&
+        normalizeUniversityId(candidate.universityId) ===
+          normalizeUniversityId(current.universityId)
+      );
+    })
     .map((candidate) => ({
       ...candidate,
       compatibility: calculateCompatibility(current, candidate),

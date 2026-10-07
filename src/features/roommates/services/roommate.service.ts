@@ -12,12 +12,9 @@ export const roommateService: RoommateProvider = {
   getCandidates: (studentId) => provider.getCandidates(studentId),
   getRequests: (studentId) => provider.getRequests(studentId),
   getConfirmedMatches: (studentId) => provider.getConfirmedMatches(studentId),
-  sendMatchRequest: (targetStudentId, actingUserId) =>
-    provider.sendMatchRequest(targetStudentId, actingUserId),
-  cancelMatchRequest: (requestId, actingUserId) =>
-    provider.cancelMatchRequest(requestId, actingUserId),
+  sendMatchRequest: (targetStudentId) => provider.sendMatchRequest(targetStudentId),
+  cancelMatchRequest: (requestId) => provider.cancelMatchRequest(requestId),
   acceptMatchRequest: (requestId, actingUserId) =>
     provider.acceptMatchRequest(requestId, actingUserId),
-  declineMatchRequest: (requestId, actingUserId) =>
-    provider.declineMatchRequest(requestId, actingUserId),
+  declineMatchRequest: (requestId) => provider.declineMatchRequest(requestId),
 };

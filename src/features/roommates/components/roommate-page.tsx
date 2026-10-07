@@ -103,7 +103,7 @@ export function RoommatePage() {
 
   const handleRequest = async (candidate: MatchCandidate) => {
     try {
-      await roommateService.sendMatchRequest(candidate.studentId, user?.id ?? "");
+      await roommateService.sendMatchRequest(candidate.studentId);
       await queriesRefetch();
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "We couldn't send the request.";
@@ -117,7 +117,7 @@ export function RoommatePage() {
   };
 
   const handleDecline = async (request: MatchRequest) => {
-    await roommateService.declineMatchRequest(request.id, user?.id ?? "");
+    await roommateService.declineMatchRequest(request.id);
     await queriesRefetch();
   };
 
@@ -249,7 +249,7 @@ export function RoommatePage() {
               onAccept={handleAccept}
               onDecline={handleDecline}
               onCancel={async (request) => {
-                await roommateService.cancelMatchRequest(request.id, user.id);
+                await roommateService.cancelMatchRequest(request.id);
                 await queriesRefetch();
               }}
             />

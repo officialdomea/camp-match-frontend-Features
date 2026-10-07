@@ -1,5 +1,5 @@
 import { mockListings } from "@/data/mock/listings";
-import { mockUniversities } from "@/data/mock/universities";
+import { supportedUniversities } from "@/data/mock/universities";
 import type { Listing, ListingSearchParams, Paginated, University } from "@/types/listing";
 import type { ListingProvider } from "./listing.provider";
 
@@ -113,6 +113,6 @@ export const mockListingProvider: ListingProvider = {
   },
 
   async getUniversities(): Promise<University[]> {
-    return delay(mockUniversities, 200);
+    return delay(supportedUniversities, 200);
   },
 };

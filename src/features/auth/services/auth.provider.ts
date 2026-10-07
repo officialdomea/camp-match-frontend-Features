@@ -7,6 +7,7 @@ import type {
   UserRole,
   VerifyPayload,
 } from "@/types/auth";
+import type { ProfileUpdateInput } from "@/types/profile";
 
 /**
  * The contract every auth data source must satisfy. Swapping the mock for the
@@ -25,6 +26,7 @@ export type AuthProvider = {
   resendVerificationCode(): Promise<void>;
   selectRole(role: UserRole): Promise<AuthUser>;
   completeOnboarding(payload: OnboardingPayload): Promise<AuthUser>;
+  updateUserProfile(input: ProfileUpdateInput): Promise<AuthUser>;
   updateProfilePhoto(file: File): Promise<AuthUser>;
   logout(): Promise<void>;
 };

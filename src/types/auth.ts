@@ -26,6 +26,8 @@ export type AuthUser = {
   livingPreference?: LivingPreference;
   /** Canonical onboarding snapshot keyed by the student profile. */
   studentProfile?: StudentProfile;
+  ownerProfile?: OwnerProfile;
+  scoutProfile?: ScoutProfile;
 };
 
 export type AuthState =
@@ -55,6 +57,9 @@ export type LivingPreference = "find-roommate" | "live-alone";
 
 export type StudentProfile = {
   universityId: string;
+  state?: string;
+  department?: string;
+  academicLevel?: string;
   accommodationTypes: string[];
   budgetMin: number;
   budgetMax: number;
@@ -64,7 +69,7 @@ export type StudentProfile = {
 
 export type StudentOnboardingPayload = StudentProfile;
 
-export type OwnerOnboardingPayload = {
+export type OwnerProfile = {
   displayName: string;
   contactPhone: string;
   city: string;
@@ -73,7 +78,7 @@ export type OwnerOnboardingPayload = {
   identityDocumentType: string;
 };
 
-export type ScoutOnboardingPayload = {
+export type ScoutProfile = {
   displayName: string;
   contactPhone: string;
   city: string;
@@ -81,6 +86,9 @@ export type ScoutOnboardingPayload = {
   experience: string;
   identityDocumentType: string;
 };
+
+export type OwnerOnboardingPayload = OwnerProfile;
+export type ScoutOnboardingPayload = ScoutProfile;
 
 export type OnboardingPayload =
   | { role: "student"; data: StudentOnboardingPayload }

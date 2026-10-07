@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Bell, LogOut, Search, User } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/hooks/use-auth";
+import { notificationService } from "@/features/notifications/services/notification.service";
 
 function initialsOf(name: string) {
   return name
@@ -26,6 +28,12 @@ export function AppHeader() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const { user, isAuthenticated, logout } = useAuth();
+
+  const unreadNotifications = useQuery({
+    queryKey: ["notifications", "unread", user?.id],
+    enabled: isAuthenticated && Boolean(user?.id),
+    queryFn: () => notificationService.getUnreadCount(user!.id),
+  });
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md">
@@ -66,14 +74,18 @@ export function AppHeader() {
         <div className="ml-auto flex items-center gap-2 md:ml-0">
           {isAuthenticated ? (
             <>
-              <button
-                type="button"
+              <Link
+                to="/messages"
                 aria-label="Notifications"
                 className="relative flex size-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 <Bell className="size-5" aria-hidden="true" />
-                <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-accent" />
-              </button>
+                {unreadNotifications.data && unreadNotifications.data > 0 ? (
+                  <span className="absolute -right-0.5 -top-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground">
+                    {unreadNotifications.data}
+                  </span>
+                ) : null}
+              </Link>
 
               <DropdownMenu>
                 <DropdownMenuTrigger

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Building2, ImagePlus, MapPin, PoundSterling, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -18,7 +18,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { propertyService } from "@/features/properties/services/property.service";
+import { canCreateProperty } from "@/features/properties/domain/property-creation-access";
+import { useAuth } from "@/features/auth/hooks/use-auth";
+import { VerificationStatus } from "@/features/onboarding/components/verification-status";
 import type { AccommodationType, PricePeriod } from "@/types/listing";
+import type { IdentityVerificationStatus } from "@/types/auth";
 import type { PropertyDraftInput } from "@/types/property";
 import type { AppError } from "@/lib/api/errors";
 import { normalizeError } from "@/lib/api/errors";
@@ -77,6 +81,60 @@ const isPricePeriod = (value: string): value is PricePeriod =>
   pricePeriodValues.includes(value as PricePeriod);
 
 function CreatePropertyPage() {
+  const { state } = useAuth();
+
+  return (
+    <AppShell>
+      {state.status === "authenticated" && state.user.role === "owner" ? (
+        canCreateProperty(state.user.identityVerification) ? (
+          <PropertyCreationForm />
+        ) : (
+          <PropertyCreationVerificationGate status={state.user.identityVerification} />
+        )
+      ) : (
+        <div className="px-4 py-6 text-sm text-muted-foreground" role="status">
+          Taking you to the right Camp Match page.
+        </div>
+      )}
+    </AppShell>
+  );
+}
+
+function PropertyCreationVerificationGate({ status }: { status: IdentityVerificationStatus }) {
+  const needsAction = status === "not_started" || status === "failed";
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-5 px-4 py-8 sm:px-6">
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Property owner
+        </p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+          Verification required
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Property creation is available after your identity verification is approved.
+        </p>
+      </div>
+
+      <VerificationStatus status={status} />
+
+      {needsAction ? (
+        <Button asChild>
+          <Link to="/onboarding/owner">
+            {status === "failed" ? "Update verification details" : "Start verification"}
+          </Link>
+        </Button>
+      ) : null}
+
+      <Button asChild variant="outline">
+        <Link to="/owner">Back to dashboard</Link>
+      </Button>
+    </div>
+  );
+}
+
+function PropertyCreationForm() {
   const navigate = useNavigate();
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -88,7 +146,7 @@ function CreatePropertyPage() {
     description: "",
     accommodationType: "single-room",
     location: {
-      universityId: "uni_unical",
+      universityId: "UNICAL",
       universityName: "University of Calabar",
       area: "",
       address: "",
@@ -426,90 +484,88 @@ function CreatePropertyPage() {
   };
 
   return (
-    <AppShell>
-      <div className="space-y-6 px-4 py-6 sm:px-6">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Property owner
-          </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Add property</h1>
+    <div className="space-y-6 px-4 py-6 sm:px-6">
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Property owner
+        </p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Add property</h1>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-surface p-4">
+        <div className="mb-4 flex flex-wrap gap-2">
+          {steps.map((step, index) => (
+            <Button
+              key={step.key}
+              type="button"
+              variant={index === stepIndex ? "default" : "outline"}
+              size="sm"
+              onClick={() => setStepIndex(index)}
+            >
+              {step.label}
+            </Button>
+          ))}
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface p-4">
-          <div className="mb-4 flex flex-wrap gap-2">
-            {steps.map((step, index) => (
-              <Button
-                key={step.key}
-                type="button"
-                variant={index === stepIndex ? "default" : "outline"}
-                size="sm"
-                onClick={() => setStepIndex(index)}
-              >
-                {step.label}
-              </Button>
-            ))}
+        <ErrorBanner error={error} />
+        <div className="mt-4 space-y-5">
+          <div className="flex items-start gap-3 rounded-xl bg-primary-soft p-3">
+            {currentStep.key === "basic" ? (
+              <Building2 className="mt-0.5 size-5 text-primary" aria-hidden="true" />
+            ) : null}
+            {currentStep.key === "location" ? (
+              <MapPin className="mt-0.5 size-5 text-primary" aria-hidden="true" />
+            ) : null}
+            {currentStep.key === "pricing" ? (
+              <PoundSterling className="mt-0.5 size-5 text-primary" aria-hidden="true" />
+            ) : null}
+            <div>
+              <p className="text-base font-semibold">{currentStep.label}</p>
+              <p className="text-sm text-muted-foreground">
+                {currentStep.key === "basic"
+                  ? "Tell us about your property"
+                  : currentStep.key === "location"
+                    ? "Where is the property?"
+                    : currentStep.key === "pricing"
+                      ? "Set your pricing"
+                      : "Complete the next step"}
+              </p>
+            </div>
           </div>
 
-          <ErrorBanner error={error} />
-          <div className="mt-4 space-y-5">
-            <div className="flex items-start gap-3 rounded-xl bg-primary-soft p-3">
-              {currentStep.key === "basic" ? (
-                <Building2 className="mt-0.5 size-5 text-primary" aria-hidden="true" />
-              ) : null}
-              {currentStep.key === "location" ? (
-                <MapPin className="mt-0.5 size-5 text-primary" aria-hidden="true" />
-              ) : null}
-              {currentStep.key === "pricing" ? (
-                <PoundSterling className="mt-0.5 size-5 text-primary" aria-hidden="true" />
-              ) : null}
-              <div>
-                <p className="text-base font-semibold">{currentStep.label}</p>
-                <p className="text-sm text-muted-foreground">
-                  {currentStep.key === "basic"
-                    ? "Tell us about your property"
-                    : currentStep.key === "location"
-                      ? "Where is the property?"
-                      : currentStep.key === "pricing"
-                        ? "Set your pricing"
-                        : "Complete the next step"}
-                </p>
-              </div>
-            </div>
+          {renderStep()}
 
-            {renderStep()}
-
-            <div className="flex items-center gap-3 pt-4">
+          <div className="flex items-center gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={previousStep}
+              disabled={stepIndex === 0 || submitting}
+            >
+              Back
+            </Button>
+            {stepIndex < steps.length - 1 ? (
               <Button
                 type="button"
-                variant="outline"
-                onClick={previousStep}
-                disabled={stepIndex === 0 || submitting}
+                onClick={nextStep}
+                disabled={!canContinue || submitting}
+                className="flex-1"
               >
-                Back
+                Continue
               </Button>
-              {stepIndex < steps.length - 1 ? (
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  disabled={!canContinue || submitting}
-                  className="flex-1"
-                >
-                  Continue
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  onClick={() => void handleSubmit()}
-                  disabled={submitting || !canContinue}
-                  className="flex-1"
-                >
-                  {submitting ? "Submitting…" : "Submit property"}
-                </Button>
-              )}
-            </div>
+            ) : (
+              <Button
+                type="button"
+                onClick={() => void handleSubmit()}
+                disabled={submitting || !canContinue}
+                className="flex-1"
+              >
+                {submitting ? "Submitting…" : "Submit property"}
+              </Button>
+            )}
           </div>
         </div>
       </div>
-    </AppShell>
+    </div>
   );
 }

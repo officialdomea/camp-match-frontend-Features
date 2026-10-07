@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { Filter, Plus, Search, SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
@@ -32,6 +32,13 @@ const statusOptions: Array<{ value: PropertyStatus | "all"; label: string }> = [
 ];
 
 function OwnerPropertiesPage() {
+  const pathname = useLocation({ select: (location) => location.pathname });
+  if (pathname !== "/owner/properties") return <Outlet />;
+
+  return <OwnerPropertiesListPage />;
+}
+
+function OwnerPropertiesListPage() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<PropertyStatus | "all">("all");
   const [sort, setSort] = useState<"newest" | "oldest" | "price-asc" | "price-desc">("newest");

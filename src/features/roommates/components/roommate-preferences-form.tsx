@@ -2,6 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useUniversities } from "@/features/listings/hooks/use-listings";
 import type { RoommatePreferences } from "@/types/roommate";
 
 const lifestyleOptions = [
@@ -38,6 +46,8 @@ export function RoommatePreferencesForm({
   saving: boolean;
   error?: string | null;
 }) {
+  const universities = useUniversities();
+
   const update = <K extends keyof RoommatePreferences>(
     field: K,
     nextValue: RoommatePreferences[K],
@@ -99,12 +109,21 @@ export function RoommatePreferencesForm({
 
           <div className="space-y-2">
             <Label htmlFor="universityId">University</Label>
-            <Input
-              id="universityId"
+            <Select
               value={value.universityId}
-              placeholder="univ-1"
-              onChange={(event) => update("universityId", event.target.value)}
-            />
+              onValueChange={(universityId) => update("universityId", universityId)}
+            >
+              <SelectTrigger id="universityId" aria-label="University">
+                <SelectValue placeholder="Select a university" />
+              </SelectTrigger>
+              <SelectContent>
+                {(universities.data ?? []).map((university) => (
+                  <SelectItem key={university.id} value={university.id}>
+                    {university.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

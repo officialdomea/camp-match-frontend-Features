@@ -18,6 +18,7 @@ export const authService: AuthProvider = {
   resendVerificationCode: () => provider.resendVerificationCode(),
   selectRole: (role) => provider.selectRole(role),
   completeOnboarding: (payload) => provider.completeOnboarding(payload),
+  updateUserProfile: (input) => provider.updateUserProfile(input),
   updateProfilePhoto: (file) => provider.updateProfilePhoto(file),
   logout: () => provider.logout(),
 };

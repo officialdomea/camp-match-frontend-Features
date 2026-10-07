@@ -9,6 +9,7 @@ import type {
   UserRole,
   VerifyPayload,
 } from "@/types/auth";
+import type { ProfileUpdateInput } from "@/types/profile";
 import type { AuthProvider } from "./auth.provider";
 
 /**
@@ -90,6 +91,13 @@ export const apiAuthProvider: AuthProvider = {
       currentSession = { ...currentSession, user };
     }
     return user;
+  },
+
+  async updateUserProfile(_input: ProfileUpdateInput) {
+    throw createAppError("SERVER_ERROR", {
+      title: "Profile editing is not connected",
+      message: "Profile updates will be available when the FastAPI profile contract is approved.",
+    });
   },
 
   async updateProfilePhoto(file: File) {

@@ -18,6 +18,8 @@ describe("role route permissions", () => {
   it("keeps owner and scout management routes separated", () => {
     expect(isRoleRouteAllowed("/owner", "owner")).toBe(true);
     expect(isRoleRouteAllowed("/scout", "scout")).toBe(true);
+    expect(isRoleRouteAllowed("/owner/properties/new", "owner")).toBe(true);
+    expect(isRoleRouteAllowed("/owner/properties/new", "student")).toBe(false);
     expect(isRoleRouteAllowed("/owner/properties", "scout")).toBe(false);
     expect(isRoleRouteAllowed("/scout/properties", "owner")).toBe(false);
     expect(isRoleRouteAllowed("/owner/bookings", "owner")).toBe(true);

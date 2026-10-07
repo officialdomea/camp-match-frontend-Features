@@ -15,6 +15,7 @@ import {
   type RoommatePreferences,
 } from "@/types/roommate";
 import type { RoommateProvider } from "./roommate.provider";
+import { isSupportedUniversityId } from "@/data/mock/universities";
 
 const SESSION_KEY = "campmatch.session";
 const ROOMMATE_KEY = "campmatch.roommate";
@@ -157,7 +158,7 @@ function currentEligibility(studentId?: string): RoommateEligibilityState {
 const seedProfiles: RoommatePreferences[] = [
   {
     studentId: "student-2",
-    universityId: "univ-1",
+    universityId: "UNICAL",
     preferredArea: "Ekosodin",
     accommodationTypes: ["shared", "studio"],
     budgetMin: 180000,
@@ -173,7 +174,7 @@ const seedProfiles: RoommatePreferences[] = [
   },
   {
     studentId: "student-3",
-    universityId: "univ-1",
+    universityId: "UNICAL",
     preferredArea: "Ekosodin",
     accommodationTypes: ["shared", "duplex"],
     budgetMin: 200000,
@@ -189,7 +190,7 @@ const seedProfiles: RoommatePreferences[] = [
   },
   {
     studentId: "student-4",
-    universityId: "univ-2",
+    universityId: "UNILAG",
     preferredArea: "Akoka",
     accommodationTypes: ["private"],
     budgetMin: 350000,
@@ -205,7 +206,7 @@ const seedProfiles: RoommatePreferences[] = [
   },
   {
     studentId: "student-5",
-    universityId: "univ-3",
+    universityId: "UNILAG",
     preferredArea: "Yaba",
     accommodationTypes: ["shared"],
     budgetMin: 250000,
@@ -320,7 +321,6 @@ function ensureConfirmMatchExists(requests: MatchRequest[]) {
         ...confirmedMatches,
         {
           id: `match_${Date.now()}_${request.id}`,
-          requestId: request.id,
           participantIds: sorted,
           status: "matched",
           matchedAt: new Date().toISOString(),
@@ -349,7 +349,10 @@ export const mockRoommateProvider: RoommateProvider = {
   },
 
   async updatePreferences(preferences: RoommatePreferences) {
-    if (!isValidRoommatePreferences(preferences)) {
+    if (
+      !isValidRoommatePreferences(preferences) ||
+      !isSupportedUniversityId(preferences.universityId)
+    ) {
       throw createAppError("VALIDATION_ERROR", {
         title: "Your roommate preferences need attention",
         message: "Check the budget, area, and other roommate details and try again.",
@@ -395,9 +398,9 @@ export const mockRoommateProvider: RoommateProvider = {
     return delay(readConfirmedMatches(studentId));
   },
 
-  async sendMatchRequest(targetStudentId: string, actingUserId: string) {
+  async sendMatchRequest(targetStudentId: string) {
     const currentUserId = readCurrentUserId();
-    if (!actingUserId || actingUserId !== currentUserId) {
+    if (!currentUserId) {
       throw createAppError("AUTHENTICATION_ERROR");
     }
     if (targetStudentId === currentUserId) {
@@ -441,16 +444,10 @@ export const mockRoommateProvider: RoommateProvider = {
     return delay(clone(request));
   },
 
-  async cancelMatchRequest(requestId: string, actingUserId: string) {
+  async cancelMatchRequest(requestId: string) {
     const requests = readAllRequests();
     const target = requests.find((request) => request.id === requestId);
     if (!target) throw createAppError("NOT_FOUND");
-    if (target.requesterId !== actingUserId) {
-      throw createAppError("FORBIDDEN", {
-        title: "You cannot cancel this request",
-        message: "Only the requesting student can cancel a roommate request.",
-      });
-    }
     if (
       target.status === "accepted" ||
       target.status === "matched" ||
@@ -529,7 +526,6 @@ export const mockRoommateProvider: RoommateProvider = {
           ...existingMatches,
           {
             id: `match_${Date.now()}`,
-            requestId: requestId,
             participantIds: pair,
             status: "matched",
             matchedAt: acceptedAt,
@@ -547,16 +543,10 @@ export const mockRoommateProvider: RoommateProvider = {
     return delay(clone(finalRequest));
   },
 
-  async declineMatchRequest(requestId: string, actingUserId: string) {
+  async declineMatchRequest(requestId: string) {
     const requests = readAllRequests();
     const target = requests.find((request) => request.id === requestId);
     if (!target) throw createAppError("NOT_FOUND");
-    if (target.requesterId !== actingUserId && target.recipientId !== actingUserId) {
-      throw createAppError("FORBIDDEN", {
-        title: "You cannot decline this request",
-        message: "Only participants can decline a roommate request.",
-      });
-    }
     if (target.status !== "pending") {
       throw createAppError("VALIDATION_ERROR", {
         title: "This request cannot be declined",

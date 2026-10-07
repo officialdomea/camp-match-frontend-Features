@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { findUniversityById } from "@/data/mock/universities";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
@@ -137,7 +138,7 @@ export function RoommateCard({
                 <DialogTitle className="truncate">{candidate.name}</DialogTitle>
                 <DialogDescription className="flex items-center gap-1.5">
                   <MapPin className="size-3.5" /> {candidate.preferredArea || "Area not set"} ·{" "}
-                  {candidate.universityId}
+                  {findUniversityById(candidate.universityId)?.name ?? candidate.universityId}
                 </DialogDescription>
                 <CompatibilityBadge score={candidate.compatibility.score} />
               </div>

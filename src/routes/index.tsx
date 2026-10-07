@@ -37,7 +37,7 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const [universityId, setUniversityId] = useState<string | undefined>("uni_unical");
+  const [universityId, setUniversityId] = useState<string | undefined>("UNICAL");
 
   const universities = useUniversities();
   const recommended = useRecommendedListings();
