@@ -1,4 +1,4 @@
-import { CalendarDays, Eye, MapPin, ShieldCheck, Star } from "lucide-react";
+import { CalendarDays, Eye, MapPin, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { formatNaira } from "@/lib/format";
 import type { ManagedProperty } from "@/types/property";
 import { SafeImage } from "@/components/common/safe-image";
+import { TrustIndicator } from "@/features/verification/components/trust-indicator";
 
 function toStatusTone(status: ManagedProperty["status"]) {
   switch (status) {
@@ -59,7 +60,11 @@ export function PropertyManagementCard({ property }: { property: ManagedProperty
               {property.location.universityName}
             </span>
             <span className="rounded-full bg-muted px-2 py-1">{property.availability.status}</span>
-            <span className="rounded-full bg-muted px-2 py-1">{property.verification.overall}</span>
+            <TrustIndicator
+              status={property.verification.overall}
+              subject="property"
+              className="rounded-full border-0 bg-muted px-2 py-1"
+            />
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
@@ -82,10 +87,11 @@ export function PropertyManagementCard({ property }: { property: ManagedProperty
               <Star className="size-4" aria-hidden="true" />
               {property.performance.saves}
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="size-4" aria-hidden="true" />
-              {property.verification.overall}
-            </span>
+            <TrustIndicator
+              status={property.verification.overall}
+              subject="property"
+              className="rounded-full border-0 bg-muted px-2 py-1"
+            />
           </div>
 
           <div className="flex justify-end">

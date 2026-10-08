@@ -16,12 +16,17 @@ export function EvidenceUploader({
 
   useEffect(() => {
     let active = true;
-    void verificationService.getEvidence().then((items) => {
-      if (active)
-        setEvidence(
-          items.filter((item) => item.kind === kind && item.documentType === documentType),
-        );
-    });
+    void verificationService
+      .getEvidence()
+      .then((items) => {
+        if (active)
+          setEvidence(
+            items.filter((item) => item.kind === kind && item.documentType === documentType),
+          );
+      })
+      .catch(() => {
+        if (active) setStatus("Private verification evidence is unavailable.");
+      });
     return () => {
       active = false;
     };

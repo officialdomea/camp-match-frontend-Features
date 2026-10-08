@@ -12,6 +12,7 @@ import { useAuth } from "@/features/auth/hooks/use-auth";
 import { canAccessNotificationDestination } from "@/features/notifications/domain/notification-access";
 import { messagingService } from "@/features/messages/services/messaging.service";
 import { notificationService } from "@/features/notifications/services/notification.service";
+import { ReportDialog } from "@/features/reporting/components/report-dialog";
 import type { Conversation } from "@/types/messages";
 
 export const Route = createFileRoute("/messages")({
@@ -48,19 +49,19 @@ function MessagesPage() {
   const conversationsQuery = useQuery({
     queryKey: ["messages", "conversations", userId, actor.role],
     enabled: Boolean(userId && actor.role),
-    queryFn: () => messagingService.getConversations(actor),
+    queryFn: () => messagingService.getConversations(),
   });
 
   const notificationsQuery = useQuery({
     queryKey: ["notifications", userId],
     enabled: Boolean(userId),
-    queryFn: () => notificationService.getNotifications(userId),
+    queryFn: () => notificationService.getNotifications(),
   });
 
   const unreadCount = useQuery({
     queryKey: ["notifications", "unread", userId],
     enabled: Boolean(userId),
-    queryFn: () => notificationService.getUnreadCount(userId),
+    queryFn: () => notificationService.getUnreadCount(),
   });
 
   useEffect(() => {
@@ -104,12 +105,12 @@ function MessagesPage() {
   const messagesQuery = useQuery({
     queryKey: ["messages", "detail", selectedConversation?.id, userId],
     enabled: Boolean(selectedConversation?.id && userId && actor.role),
-    queryFn: () => messagingService.getMessages(selectedConversation!.id, actor),
+    queryFn: () => messagingService.getMessages(selectedConversation!.id),
   });
 
   const markAsRead = async (conversationId: string) => {
     if (!userId || !actor.role) return;
-    await messagingService.markConversationAsRead(conversationId, actor);
+    await messagingService.markConversationAsRead(conversationId);
     await queryClient.invalidateQueries({ queryKey: ["messages", "conversations", userId] });
   };
 
@@ -120,8 +121,6 @@ function MessagesPage() {
     try {
       await messagingService.sendMessage({
         conversationId: selectedConversation.id,
-        senderId: userId,
-        senderRole: actor.role,
         body: draftMessage.trim(),
       });
       setDraftMessage("");
@@ -136,7 +135,7 @@ function MessagesPage() {
     if (!userId) return;
     setActionError(null);
     try {
-      await notificationService.markAsRead(notificationId, userId);
+      await notificationService.markAsRead(notificationId);
       await queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
       await queryClient.invalidateQueries({ queryKey: ["notifications", "unread", userId] });
     } catch {
@@ -148,7 +147,7 @@ function MessagesPage() {
     if (!userId) return;
     setActionError(null);
     try {
-      await notificationService.markAllAsRead(userId);
+      await notificationService.markAllAsRead();
       await queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
       await queryClient.invalidateQueries({ queryKey: ["notifications", "unread", userId] });
     } catch {
@@ -299,10 +298,18 @@ function MessagesPage() {
             </Card>
 
             <Card>
-              <CardHeader className="border-b border-border/80 pb-4">
-                <CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-border/80 pb-4">
+                <CardTitle className="min-w-0 truncate">
                   {selectedConversation?.contextLabel ?? "Select a conversation"}
                 </CardTitle>
+                {selectedConversation ? (
+                  <ReportDialog
+                    targetType="conversation"
+                    targetId={selectedConversation.id}
+                    targetLabel="this conversation"
+                    className="shrink-0"
+                  />
+                ) : null}
               </CardHeader>
               <CardContent className="space-y-4 p-4 sm:p-6">
                 {selectedConversation ? (

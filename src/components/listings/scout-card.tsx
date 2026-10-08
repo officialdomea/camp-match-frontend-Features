@@ -2,6 +2,7 @@ import { BadgeCheck, MessageCircle, Star, Timer } from "lucide-react";
 import type { Scout } from "@/types/listing";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ReportDialog } from "@/features/reporting/components/report-dialog";
 
 function initials(name: string) {
   return name
@@ -51,6 +52,12 @@ export function ScoutCard({ scout, onContact }: { scout: Scout; onContact?: () =
         <MessageCircle className="size-4" aria-hidden="true" />
         Message {scout.name.split(" ")[0]}
       </Button>
+      <ReportDialog
+        targetType="user"
+        targetId={scout.id}
+        targetLabel="this Scout"
+        className="mt-2 w-full"
+      />
     </section>
   );
 }

@@ -7,6 +7,7 @@ import { PropertyFeatures } from "@/components/listings/property-features";
 import { PropertyLocation } from "@/components/listings/property-location";
 import { ScoutCard } from "@/components/listings/scout-card";
 import { VerificationBadge, VerificationCard } from "@/components/listings/verification-badge";
+import { ReportDialog } from "@/features/reporting/components/report-dialog";
 import { accommodationLabels } from "@/components/listings/accommodation-labels";
 import { ErrorState, LoadingState } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
@@ -98,7 +99,14 @@ function ListingDetailPage() {
 
             <div className="space-y-4 px-4 sm:px-0">
               <div className="space-y-2">
-                <VerificationBadge verified={listing.verification.verified} />
+                <div className="flex flex-wrap items-center gap-2">
+                  <VerificationBadge verified={listing.verification.verified} />
+                  <ReportDialog
+                    targetType="property"
+                    targetId={listing.id}
+                    targetLabel="this property"
+                  />
+                </div>
                 <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{listing.title}</h1>
                 <p className="text-sm text-muted-foreground">
                   {listing.location.area}, {listing.location.city} ·{" "}

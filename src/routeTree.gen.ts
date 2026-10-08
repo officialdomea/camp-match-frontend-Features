@@ -31,11 +31,13 @@ import { Route as OwnerPropertiesRouteImport } from './routes/owner/properties'
 import { Route as ScoutActivityRouteImport } from './routes/scout/activity'
 import { Route as ScoutBookingsRouteImport } from './routes/scout/bookings'
 import { Route as ScoutPropertiesRouteImport } from './routes/scout/properties'
+import { Route as VerificationRoleRouteImport } from './routes/verification.$role'
 import { Route as OwnerPropertiesPropertyIdRouteImport } from './routes/owner/properties/$propertyId'
 import { Route as OwnerPropertiesNewRouteImport } from './routes/owner/properties/new'
 import { Route as ScoutPropertiesPropertyIdRouteImport } from './routes/scout/properties/$propertyId'
 import { Route as OwnerPropertiesPropertyIdAvailabilityRouteImport } from './routes/owner/properties/$propertyId/availability'
 import { Route as OwnerPropertiesPropertyIdEditRouteImport } from './routes/owner/properties/$propertyId/edit'
+import { Route as OwnerPropertiesPropertyIdVerificationRouteImport } from './routes/owner/properties/$propertyId/verification'
 import { Route as ScoutPropertiesPropertyIdAvailabilityRouteImport } from './routes/scout/properties/$propertyId/availability'
 import { Route as ScoutPropertiesPropertyIdEditRouteImport } from './routes/scout/properties/$propertyId/edit'
 
@@ -149,6 +151,11 @@ const ScoutPropertiesRoute = ScoutPropertiesRouteImport.update({
   path: '/properties',
   getParentRoute: () => ScoutRoute,
 } as any)
+const VerificationRoleRoute = VerificationRoleRouteImport.update({
+  id: '/verification/$role',
+  path: '/verification/$role',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OwnerPropertiesPropertyIdRoute =
   OwnerPropertiesPropertyIdRouteImport.update({
     id: '/$propertyId',
@@ -176,6 +183,12 @@ const OwnerPropertiesPropertyIdEditRoute =
   OwnerPropertiesPropertyIdEditRouteImport.update({
     id: '/edit',
     path: '/edit',
+    getParentRoute: () => OwnerPropertiesPropertyIdRoute,
+  } as any)
+const OwnerPropertiesPropertyIdVerificationRoute =
+  OwnerPropertiesPropertyIdVerificationRouteImport.update({
+    id: '/verification',
+    path: '/verification',
     getParentRoute: () => OwnerPropertiesPropertyIdRoute,
   } as any)
 const ScoutPropertiesPropertyIdAvailabilityRoute =
@@ -214,11 +227,13 @@ export interface FileRoutesByFullPath {
   '/scout/activity': typeof ScoutActivityRoute
   '/scout/bookings': typeof ScoutBookingsRoute
   '/scout/properties': typeof ScoutPropertiesRouteWithChildren
+  '/verification/$role': typeof VerificationRoleRoute
   '/owner/properties/$propertyId': typeof OwnerPropertiesPropertyIdRouteWithChildren
   '/owner/properties/new': typeof OwnerPropertiesNewRoute
   '/scout/properties/$propertyId': typeof ScoutPropertiesPropertyIdRouteWithChildren
   '/owner/properties/$propertyId/availability': typeof OwnerPropertiesPropertyIdAvailabilityRoute
   '/owner/properties/$propertyId/edit': typeof OwnerPropertiesPropertyIdEditRoute
+  '/owner/properties/$propertyId/verification': typeof OwnerPropertiesPropertyIdVerificationRoute
   '/scout/properties/$propertyId/availability': typeof ScoutPropertiesPropertyIdAvailabilityRoute
   '/scout/properties/$propertyId/edit': typeof ScoutPropertiesPropertyIdEditRoute
 }
@@ -245,11 +260,13 @@ export interface FileRoutesByTo {
   '/scout/activity': typeof ScoutActivityRoute
   '/scout/bookings': typeof ScoutBookingsRoute
   '/scout/properties': typeof ScoutPropertiesRouteWithChildren
+  '/verification/$role': typeof VerificationRoleRoute
   '/owner/properties/$propertyId': typeof OwnerPropertiesPropertyIdRouteWithChildren
   '/owner/properties/new': typeof OwnerPropertiesNewRoute
   '/scout/properties/$propertyId': typeof ScoutPropertiesPropertyIdRouteWithChildren
   '/owner/properties/$propertyId/availability': typeof OwnerPropertiesPropertyIdAvailabilityRoute
   '/owner/properties/$propertyId/edit': typeof OwnerPropertiesPropertyIdEditRoute
+  '/owner/properties/$propertyId/verification': typeof OwnerPropertiesPropertyIdVerificationRoute
   '/scout/properties/$propertyId/availability': typeof ScoutPropertiesPropertyIdAvailabilityRoute
   '/scout/properties/$propertyId/edit': typeof ScoutPropertiesPropertyIdEditRoute
 }
@@ -277,11 +294,13 @@ export interface FileRoutesById {
   '/scout/activity': typeof ScoutActivityRoute
   '/scout/bookings': typeof ScoutBookingsRoute
   '/scout/properties': typeof ScoutPropertiesRouteWithChildren
+  '/verification/$role': typeof VerificationRoleRoute
   '/owner/properties/$propertyId': typeof OwnerPropertiesPropertyIdRouteWithChildren
   '/owner/properties/new': typeof OwnerPropertiesNewRoute
   '/scout/properties/$propertyId': typeof ScoutPropertiesPropertyIdRouteWithChildren
   '/owner/properties/$propertyId/availability': typeof OwnerPropertiesPropertyIdAvailabilityRoute
   '/owner/properties/$propertyId/edit': typeof OwnerPropertiesPropertyIdEditRoute
+  '/owner/properties/$propertyId/verification': typeof OwnerPropertiesPropertyIdVerificationRoute
   '/scout/properties/$propertyId/availability': typeof ScoutPropertiesPropertyIdAvailabilityRoute
   '/scout/properties/$propertyId/edit': typeof ScoutPropertiesPropertyIdEditRoute
 }
@@ -310,11 +329,13 @@ export interface FileRouteTypes {
     | '/scout/activity'
     | '/scout/bookings'
     | '/scout/properties'
+    | '/verification/$role'
     | '/owner/properties/$propertyId'
     | '/owner/properties/new'
     | '/scout/properties/$propertyId'
     | '/owner/properties/$propertyId/availability'
     | '/owner/properties/$propertyId/edit'
+    | '/owner/properties/$propertyId/verification'
     | '/scout/properties/$propertyId/availability'
     | '/scout/properties/$propertyId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -341,11 +362,13 @@ export interface FileRouteTypes {
     | '/scout/activity'
     | '/scout/bookings'
     | '/scout/properties'
+    | '/verification/$role'
     | '/owner/properties/$propertyId'
     | '/owner/properties/new'
     | '/scout/properties/$propertyId'
     | '/owner/properties/$propertyId/availability'
     | '/owner/properties/$propertyId/edit'
+    | '/owner/properties/$propertyId/verification'
     | '/scout/properties/$propertyId/availability'
     | '/scout/properties/$propertyId/edit'
   id:
@@ -372,11 +395,13 @@ export interface FileRouteTypes {
     | '/scout/activity'
     | '/scout/bookings'
     | '/scout/properties'
+    | '/verification/$role'
     | '/owner/properties/$propertyId'
     | '/owner/properties/new'
     | '/scout/properties/$propertyId'
     | '/owner/properties/$propertyId/availability'
     | '/owner/properties/$propertyId/edit'
+    | '/owner/properties/$propertyId/verification'
     | '/scout/properties/$propertyId/availability'
     | '/scout/properties/$propertyId/edit'
   fileRoutesById: FileRoutesById
@@ -399,6 +424,7 @@ export interface RootRouteChildren {
   OnboardingOwnerRoute: typeof OnboardingOwnerRoute
   OnboardingScoutRoute: typeof OnboardingScoutRoute
   OnboardingStudentRoute: typeof OnboardingStudentRoute
+  VerificationRoleRoute: typeof VerificationRoleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -557,6 +583,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScoutPropertiesRouteImport
       parentRoute: typeof ScoutRoute
     }
+    '/verification/$role': {
+      id: '/verification/$role'
+      path: '/verification/$role'
+      fullPath: '/verification/$role'
+      preLoaderRoute: typeof VerificationRoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/owner/properties/$propertyId': {
       id: '/owner/properties/$propertyId'
       path: '/$propertyId'
@@ -592,6 +625,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OwnerPropertiesPropertyIdEditRouteImport
       parentRoute: typeof OwnerPropertiesPropertyIdRoute
     }
+    '/owner/properties/$propertyId/verification': {
+      id: '/owner/properties/$propertyId/verification'
+      path: '/verification'
+      fullPath: '/owner/properties/$propertyId/verification'
+      preLoaderRoute: typeof OwnerPropertiesPropertyIdVerificationRouteImport
+      parentRoute: typeof OwnerPropertiesPropertyIdRoute
+    }
     '/scout/properties/$propertyId/availability': {
       id: '/scout/properties/$propertyId/availability'
       path: '/availability'
@@ -612,6 +652,7 @@ declare module '@tanstack/react-router' {
 interface OwnerPropertiesPropertyIdRouteChildren {
   OwnerPropertiesPropertyIdAvailabilityRoute: typeof OwnerPropertiesPropertyIdAvailabilityRoute
   OwnerPropertiesPropertyIdEditRoute: typeof OwnerPropertiesPropertyIdEditRoute
+  OwnerPropertiesPropertyIdVerificationRoute: typeof OwnerPropertiesPropertyIdVerificationRoute
 }
 
 const OwnerPropertiesPropertyIdRouteChildren: OwnerPropertiesPropertyIdRouteChildren =
@@ -619,6 +660,8 @@ const OwnerPropertiesPropertyIdRouteChildren: OwnerPropertiesPropertyIdRouteChil
     OwnerPropertiesPropertyIdAvailabilityRoute:
       OwnerPropertiesPropertyIdAvailabilityRoute,
     OwnerPropertiesPropertyIdEditRoute: OwnerPropertiesPropertyIdEditRoute,
+    OwnerPropertiesPropertyIdVerificationRoute:
+      OwnerPropertiesPropertyIdVerificationRoute,
   }
 
 const OwnerPropertiesPropertyIdRouteWithChildren =
@@ -713,6 +756,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingOwnerRoute: OnboardingOwnerRoute,
   OnboardingScoutRoute: OnboardingScoutRoute,
   OnboardingStudentRoute: OnboardingStudentRoute,
+  VerificationRoleRoute: VerificationRoleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

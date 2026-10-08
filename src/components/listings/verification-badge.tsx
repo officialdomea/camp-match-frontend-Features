@@ -1,6 +1,7 @@
 import { BadgeCheck, Clock, ShieldCheck, XCircle } from "lucide-react";
 import type { Verification, VerificationCheck } from "@/types/listing";
 import { cn } from "@/lib/utils";
+import { TrustIndicator } from "@/features/verification/components/trust-indicator";
 
 export function VerificationBadge({
   verified,
@@ -11,25 +12,12 @@ export function VerificationBadge({
   size?: "sm" | "md";
   className?: string;
 }) {
-  const label = verified ? "Camp Match Verified" : "Verification pending";
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border font-medium",
-        size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm",
-        verified
-          ? "border-primary/20 bg-primary-soft text-primary"
-          : "border-warning/30 bg-warning/10 text-warning-foreground",
-        className,
-      )}
-    >
-      {verified ? (
-        <BadgeCheck className="size-3.5" aria-hidden="true" />
-      ) : (
-        <Clock className="size-3.5" aria-hidden="true" />
-      )}
-      {label}
-    </span>
+    <TrustIndicator
+      status={verified ? "verified" : "pending"}
+      subject="property"
+      className={cn(size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm", className)}
+    />
   );
 }
 

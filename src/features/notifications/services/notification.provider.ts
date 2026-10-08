@@ -6,3 +6,10 @@ export type NotificationProvider = {
   markAsRead(notificationId: string, userId: string): Promise<Notification | null>;
   markAllAsRead(userId: string): Promise<number>;
 };
+
+export type NotificationService = {
+  getNotifications(): Promise<Notification[]>;
+  getUnreadCount(): Promise<number>;
+  markAsRead(notificationId: string): Promise<Notification | null>;
+  markAllAsRead(): Promise<number>;
+};

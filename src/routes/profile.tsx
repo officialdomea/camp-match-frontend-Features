@@ -9,6 +9,7 @@ import { ProfileShell } from "@/features/profile/components/profile-shell";
 import { ScoutProfile } from "@/features/profile/components/scout-profile";
 import { StudentProfile } from "@/features/profile/components/student-profile";
 import { profileService } from "@/features/profile/services/profile.service";
+import { ReportHistory } from "@/features/reporting/components/report-history";
 import type { ProfileUpdateInput } from "@/types/profile";
 
 export const Route = createFileRoute("/profile")({
@@ -82,6 +83,7 @@ function ProfilePage() {
             error={saveError}
             onSave={saveProfile}
           />
+          <ReportHistory userId={currentUser.id} />
         </ProfileShell>
       ) : currentUser.role === "owner" ? (
         <ProfileShell
@@ -96,6 +98,7 @@ function ProfilePage() {
             error={saveError}
             onSave={saveProfile}
           />
+          <ReportHistory userId={currentUser.id} />
         </ProfileShell>
       ) : (
         <ProfileShell
@@ -110,6 +113,7 @@ function ProfilePage() {
             error={saveError}
             onSave={saveProfile}
           />
+          <ReportHistory userId={currentUser.id} />
         </ProfileShell>
       )}
     </AppShell>

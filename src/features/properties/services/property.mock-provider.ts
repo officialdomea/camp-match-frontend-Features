@@ -128,7 +128,7 @@ export const mockPropertyProvider: PropertyProvider = {
     return delay(clone(find(id)));
   },
 
-  async createProperty(input: PropertyDraftInput) {
+  async createProperty(input: PropertyDraftInput, ownerId) {
     const now = new Date().toISOString();
     const property: ManagedProperty = {
       id: `prop_${Math.random().toString(36).slice(2, 8)}`,
@@ -136,7 +136,10 @@ export const mockPropertyProvider: PropertyProvider = {
       description: input.description,
       accommodationType: input.accommodationType,
       status: "pending_review",
-      owner: store[0]?.owner ?? { id: "usr_demo_owner", name: "You", verified: true },
+      owner: {
+        ...(store[0]?.owner ?? { id: "usr_demo_owner", name: "You", verified: true }),
+        ...(ownerId ? { id: ownerId } : {}),
+      },
       location: {
         universityId: input.location.universityId,
         universityName: input.location.universityName ?? "",
@@ -278,10 +281,18 @@ export const mockPropertyProvider: PropertyProvider = {
     return delay(results, 600);
   },
 
-  async authorizeScout(scoutId, propertyIds) {
+  async authorizeScout(scoutId, propertyIds, ownerId) {
     const match = mockScoutDirectory.find((scout) => scout.id === scoutId);
     if (!match) throw createAppError("NOT_FOUND");
     if (scouts.some((scout) => scout.id === scoutId)) throw createAppError("CONFLICT");
+    if (
+      propertyIds.some((propertyId) => {
+        const property = store.find((item) => item.id === propertyId);
+        return !property || (ownerId && property.owner.id !== ownerId);
+      })
+    ) {
+      throw createAppError("FORBIDDEN");
+    }
     const authorized: AuthorizedScout = {
       id: match.id,
       name: match.name,
@@ -294,14 +305,52 @@ export const mockPropertyProvider: PropertyProvider = {
       propertyIds,
     };
     scouts = [authorized, ...scouts];
+    for (const property of store) {
+      if (!propertyIds.includes(property.id)) continue;
+      property.scouts = [
+        ...property.scouts,
+        {
+          scoutId,
+          scoutName: match.name,
+          verified: match.verified,
+          relationship: "authorized_scout",
+          status: "pending",
+          authorizedAt: authorized.authorizedAt,
+          permissions: {
+            canEditProperty: false,
+            canUpdateAvailability: false,
+            canManagePhotos: false,
+            canRespondToEnquiries: false,
+            canViewBookings: false,
+          },
+        },
+      ];
+    }
     return delay(clone(authorized), 700);
   },
 
-  async removeScout(scoutId) {
-    scouts = scouts.filter((scout) => scout.id !== scoutId);
+  async removeScout(scoutId, propertyIds = []) {
+    const scopedPropertyIds = new Set(propertyIds);
     for (const property of store) {
-      property.scouts = property.scouts.filter((item) => item.scoutId !== scoutId);
+      if (scopedPropertyIds.has(property.id)) {
+        property.scouts = property.scouts.filter((item) => item.scoutId !== scoutId);
+      }
     }
+    scouts = scouts
+      .map((scout) =>
+        scout.id === scoutId
+          ? {
+              ...scout,
+              propertyIds: scout.propertyIds.filter(
+                (propertyId) => !scopedPropertyIds.has(propertyId),
+              ),
+              managedPropertyCount: scout.propertyIds.filter(
+                (propertyId) => !scopedPropertyIds.has(propertyId),
+              ).length,
+            }
+          : scout,
+      )
+      .filter((scout) => scout.propertyIds.length > 0);
     return delay(undefined, 500);
   },
 

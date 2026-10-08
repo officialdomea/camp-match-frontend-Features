@@ -7,7 +7,7 @@ const config: Record<
   { label: string; description: string; tone: string; icon: typeof ShieldCheck }
 > = {
   not_started: {
-    label: "Verification not started",
+    label: "Verification required",
     description: "Add a government-issued ID to begin verification.",
     tone: "border-border bg-surface text-muted-foreground",
     icon: ShieldQuestion,
@@ -18,20 +18,38 @@ const config: Record<
     tone: "border-primary/30 bg-primary-soft text-primary",
     icon: Loader2,
   },
-  pending: {
-    label: "Verification pending review",
-    description: "Our team is reviewing your details. This usually takes 24–48 hours.",
+  submitted: {
+    label: "Verification under review",
+    description: "Your document has been submitted for review.",
     tone: "border-accent/40 bg-accent/10 text-foreground",
     icon: Clock,
   },
+  pending: {
+    label: "Verification under review",
+    description: "Our team is reviewing your details.",
+    tone: "border-accent/40 bg-accent/10 text-foreground",
+    icon: Clock,
+  },
+  changes_requested: {
+    label: "Verification needs attention",
+    description: "Please upload a clearer document or update the details provided.",
+    tone: "border-amber-500/40 bg-amber-500/10 text-amber-700",
+    icon: AlertTriangle,
+  },
   verified: {
-    label: "Verification successful",
+    label: "Identity verified",
     description: "Your identity has been confirmed.",
     tone: "border-primary/40 bg-primary-soft text-primary",
     icon: ShieldCheck,
   },
+  rejected: {
+    label: "Verification needs attention",
+    description: "We couldn't confirm your details. Please try a different document.",
+    tone: "border-destructive/30 bg-destructive/5 text-destructive",
+    icon: AlertTriangle,
+  },
   failed: {
-    label: "Verification failed",
+    label: "Verification needs attention",
     description: "We couldn't confirm your details. Please try a different document.",
     tone: "border-destructive/30 bg-destructive/5 text-destructive",
     icon: AlertTriangle,

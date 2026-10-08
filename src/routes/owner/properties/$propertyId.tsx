@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProperty } from "@/features/properties/hooks/use-properties";
+import { getFriendlyPropertyVerificationMessage } from "@/features/verification/domain/verification-trust";
 import { formatNaira } from "@/lib/format";
 
 export const Route = createFileRoute("/owner/properties/$propertyId")({
@@ -67,6 +68,14 @@ function OwnerPropertyDetailPage() {
                 Availability
               </Link>
             </Button>
+            <Button asChild variant="outline">
+              <Link
+                to="/owner/properties/$propertyId/verification"
+                params={{ propertyId: data.id }}
+              >
+                Verification
+              </Link>
+            </Button>
           </div>
         </div>
 
@@ -81,6 +90,9 @@ function OwnerPropertyDetailPage() {
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground">Verification</p>
               <p className="mt-2 font-semibold">{data.verification.overall}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {getFriendlyPropertyVerificationMessage(data.verification.overall)}
+              </p>
             </CardContent>
           </Card>
           <Card>

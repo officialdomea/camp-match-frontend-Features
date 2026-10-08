@@ -7,9 +7,25 @@ export type UserRole = "student" | "owner" | "scout";
 
 export type AccountStatus = "pending_verification" | "active" | "suspended";
 
+export type VerificationState =
+  "not_started" | "pending" | "submitted" | "changes_requested" | "verified" | "rejected";
+
+export type VerificationSubjectType =
+  "student_identity" | "owner_identity" | "scout_identity" | "property";
+
 /** Backend remains authoritative for this value. */
-export type IdentityVerificationStatus =
-  "not_started" | "in_progress" | "pending" | "verified" | "failed";
+export type IdentityVerificationStatus = VerificationState | "in_progress" | "failed";
+
+export type VerificationRecord = {
+  id: string;
+  subjectType: VerificationSubjectType;
+  subjectId: string;
+  status: VerificationState;
+  submittedAt?: string | undefined;
+  reviewedAt?: string | undefined;
+  rejectionReason?: string | null | undefined;
+  updatedAt: string;
+};
 
 export type AuthUser = {
   id: string;

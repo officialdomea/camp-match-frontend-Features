@@ -1,4 +1,4 @@
-export type VerificationEvidenceKind = "identity" | "ownership";
+export type VerificationEvidenceKind = "identity" | "ownership" | "property";
 export type VerificationEvidenceStatus = "uploaded" | "pending" | "approved" | "rejected";
 
 /** Private verification metadata. The media reference is never a public image URL. */

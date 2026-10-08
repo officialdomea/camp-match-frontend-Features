@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { MapPin, MessageCircle, Sparkles, UserRound } from "lucide-react";
 import type { MatchCandidate, MatchRequest, MatchStatus } from "@/types/roommate";
+import { ReportDialog } from "@/features/reporting/components/report-dialog";
 
 function statusBadge(status: MatchStatus) {
   const map: Record<MatchStatus, string> = {
@@ -177,6 +178,11 @@ export function RoommateCard({
             </div>
 
             <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-4">
+              <ReportDialog
+                targetType="user"
+                targetId={candidate.studentId}
+                targetLabel="this student"
+              />
               {requestStatus === "accepted" ? (
                 <Button variant="outline" disabled>
                   Awaiting mutual confirmation

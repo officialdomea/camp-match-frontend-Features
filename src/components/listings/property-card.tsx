@@ -6,6 +6,7 @@ import { VerificationBadge } from "./verification-badge";
 import { accommodationLabels } from "./accommodation-labels";
 import { cn } from "@/lib/utils";
 import { SafeImage } from "@/components/common/safe-image";
+import { TrustIndicator } from "@/features/verification/components/trust-indicator";
 
 type PropertyCardProps = {
   listing: Listing;
@@ -47,8 +48,9 @@ export function PropertyCard({
         )}
 
         <div className="absolute left-3 top-3">
-          <VerificationBadge
-            verified={listing.verification.verified}
+          <TrustIndicator
+            status={listing.verification.verified ? "verified" : "pending"}
+            subject="property"
             className="bg-surface/95 backdrop-blur-sm"
           />
         </div>

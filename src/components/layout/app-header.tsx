@@ -32,7 +32,7 @@ export function AppHeader() {
   const unreadNotifications = useQuery({
     queryKey: ["notifications", "unread", user?.id],
     enabled: isAuthenticated && Boolean(user?.id),
-    queryFn: () => notificationService.getUnreadCount(user!.id),
+    queryFn: () => notificationService.getUnreadCount(),
   });
 
   return (

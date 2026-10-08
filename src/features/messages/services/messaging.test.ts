@@ -10,7 +10,8 @@ import {
   canMessageScoutToStudent,
   type ConversationAccessContext,
 } from "@/features/messages/domain/message-access";
-import { messagingService } from "./messaging.service";
+import { createMessagingService } from "./messaging.service";
+import { mockMessagingProvider } from "./messaging.mock-provider";
 
 function propertyContext(
   actor: ConversationAccessContext["actor"],
@@ -168,10 +169,11 @@ describe("messaging authorization policy", () => {
 
 describe("messaging provider boundary", () => {
   it("returns only authorized conversations for the actor", async () => {
-    const conversations = await messagingService.getConversations({
+    const service = createMessagingService(mockMessagingProvider, async () => ({
       id: "student-a",
       role: "student",
-    });
+    }));
+    const conversations = await service.getConversations();
     expect(conversations.map((conversation) => conversation.id)).toEqual(
       expect.arrayContaining(["conv_property_unical", "conv_scout_unical", "conv_roommate_match"]),
     );
@@ -181,30 +183,50 @@ describe("messaging provider boundary", () => {
   });
 
   it("denies an unauthorized direct conversation route lookup", async () => {
-    await expect(
-      messagingService.getConversation("conv_owner_unrelated", {
-        id: "student-a",
-        role: "student",
-      }),
-    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    const service = createMessagingService(mockMessagingProvider, async () => ({
+      id: "student-a",
+      role: "student",
+    }));
+    await expect(service.getConversation("conv_owner_unrelated")).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
+  });
+
+  it("binds outgoing messages to the authenticated actor", async () => {
+    const service = createMessagingService(mockMessagingProvider, async () => ({
+      id: "student-a",
+      role: "student",
+    }));
+    const sent = await service.sendMessage({
+      conversationId: "conv_property_unical",
+      body: "Testing authenticated sender identity",
+      senderId: "owner-1",
+      senderRole: "owner",
+    } as { conversationId: string; body: string });
+    expect(sent.senderId).toBe("student-a");
   });
 
   it("does not allow message submission to an unauthorized conversation", async () => {
+    const service = createMessagingService(mockMessagingProvider, async () => ({
+      id: "student-a",
+      role: "student",
+    }));
     await expect(
-      messagingService.sendMessage({
+      service.sendMessage({
         conversationId: "conv_owner_unrelated",
-        senderId: "student-a",
-        senderRole: "student",
         body: "Can I message here?",
       }),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("updates unread state only for a conversation the actor can access", async () => {
-    const actor = { id: "student-a", role: "student" as const };
-    await messagingService.markConversationAsRead("conv_property_unical", actor);
-    await expect(
-      messagingService.markConversationAsRead("conv_owner_unrelated", actor),
-    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    const service = createMessagingService(mockMessagingProvider, async () => ({
+      id: "student-a",
+      role: "student",
+    }));
+    await service.markConversationAsRead("conv_property_unical");
+    await expect(service.markConversationAsRead("conv_owner_unrelated")).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
   });
 });

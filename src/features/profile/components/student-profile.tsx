@@ -17,8 +17,10 @@ import { useUniversities } from "@/features/listings/hooks/use-listings";
 import { ProfileSection } from "@/features/profile/components/profile-section";
 import { useSavedListings } from "@/features/saved/hooks/use-saved-listings";
 import { findUniversityById } from "@/data/mock/universities";
+import { VerificationStatus } from "@/features/onboarding/components/verification-status";
 import type { AuthUser, StudentProfile as StudentProfileData } from "@/types/auth";
 import type { ProfileUpdateInput } from "@/types/profile";
+import { TrustIndicator } from "@/features/verification/components/trust-indicator";
 
 export function StudentProfile({
   user,
@@ -50,6 +52,7 @@ export function StudentProfile({
       return;
     }
   };
+  <TrustIndicator status={user.identityVerification} subject="identity" className="mb-3" />;
 
   return (
     <div className="space-y-5">
@@ -244,6 +247,22 @@ export function StudentProfile({
             </Button>
           </div>
         )}
+      </ProfileSection>
+
+      <ProfileSection
+        title="Identity verification"
+        action={
+          <Button asChild variant="outline" size="sm">
+            <Link to="/verification/$role" params={{ role: "student" }}>
+              Verification details
+            </Link>
+          </Button>
+        }
+      >
+        <VerificationStatus status={user.identityVerification} />
+        <p className="mt-3 text-sm text-muted-foreground">
+          Identity document details are private and are never shown in public listings or profiles.
+        </p>
       </ProfileSection>
 
       <ProfileSection

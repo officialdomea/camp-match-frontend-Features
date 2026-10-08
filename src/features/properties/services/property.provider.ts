@@ -22,7 +22,7 @@ export type PropertyProvider = {
   getOwnerDashboard(): Promise<OwnerDashboardSummary>;
   getOwnerProperties(params?: PropertyListParams): Promise<ManagedProperty[]>;
   getProperty(id: string): Promise<ManagedProperty>;
-  createProperty(input: PropertyDraftInput): Promise<ManagedProperty>;
+  createProperty(input: PropertyDraftInput, ownerId?: string): Promise<ManagedProperty>;
   updateProperty(id: string, input: PropertyUpdateInput): Promise<ManagedProperty>;
   updateAvailability(
     id: string,
@@ -36,8 +36,12 @@ export type PropertyProvider = {
 
   getAuthorizedScouts(): Promise<AuthorizedScout[]>;
   searchScouts(query: string): Promise<ScoutSearchResult[]>;
-  authorizeScout(scoutId: string, propertyIds: string[]): Promise<AuthorizedScout>;
-  removeScout(scoutId: string): Promise<void>;
+  authorizeScout(
+    scoutId: string,
+    propertyIds: string[],
+    ownerId?: string,
+  ): Promise<AuthorizedScout>;
+  removeScout(scoutId: string, propertyIds?: string[]): Promise<void>;
 
   getScoutDashboard(): Promise<ScoutDashboardSummary>;
   getManagedProperties(params?: PropertyListParams): Promise<ScoutManagedProperty[]>;

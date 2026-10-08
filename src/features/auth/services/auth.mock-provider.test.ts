@@ -17,22 +17,25 @@ beforeEach(() => {
 });
 
 describe("mock Google authentication flow", () => {
-  it("sends a new Google user to role selection", async () => {
+  it("sends a new Google user through the standard Camp Match verification gate", async () => {
     const session = await mockAuthProvider.signInWithGoogle();
 
     expect(session.user.email).toBe("google-user@campmatch.local");
     expect(session.user.role).toBeNull();
     expect(session.user.onboardingComplete).toBe(false);
-    expect(session.user.emailVerified).toBe(true);
+    expect(session.user.emailVerified).toBe(false);
+    expect(session.user.accountStatus).toBe("pending_verification");
   });
 
   it("recognizes a returning Google user with their existing role", async () => {
     await mockAuthProvider.signInWithGoogle();
     await mockAuthProvider.selectRole("owner");
+    await mockAuthProvider.verifyAccount({ code: "123456" });
 
     const returningSession = await mockAuthProvider.signInWithGoogle();
 
     expect(returningSession.user.email).toBe("google-user@campmatch.local");
     expect(returningSession.user.role).toBe("owner");
+    expect(returningSession.user.emailVerified).toBe(true);
   });
 });

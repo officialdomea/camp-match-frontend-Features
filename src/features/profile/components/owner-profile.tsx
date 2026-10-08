@@ -11,6 +11,7 @@ import { useOwnerProperties } from "@/features/properties/hooks/use-properties";
 import { ProfileSection } from "@/features/profile/components/profile-section";
 import type { AuthUser } from "@/types/auth";
 import type { ProfileUpdateInput } from "@/types/profile";
+import { TrustIndicator } from "@/features/verification/components/trust-indicator";
 
 export function OwnerProfile({
   user,
@@ -131,10 +132,13 @@ export function OwnerProfile({
         title="Identity verification"
         action={
           <Button asChild variant="outline" size="sm">
-            <Link to="/onboarding/owner">Verification details</Link>
+            <Link to="/verification/$role" params={{ role: "owner" }}>
+              Verification details
+            </Link>
           </Button>
         }
       >
+        <TrustIndicator status={user.identityVerification} subject="identity" className="mb-3" />
         <VerificationStatus status={user.identityVerification} />
         <p className="mt-3 text-sm text-muted-foreground">
           Identity document details are private and are not displayed in this profile.
@@ -170,6 +174,16 @@ export function OwnerProfile({
                   <p className="text-xs text-muted-foreground">
                     {property.location.area}, {property.location.city}
                   </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <TrustIndicator
+                      status={property.verification.overall}
+                      subject="property"
+                      className="rounded-full border-0 bg-muted px-2 py-1"
+                    />
+                    <span className="text-xs capitalize text-muted-foreground">
+                      {property.verification.overall.replace(/_/g, " ")}
+                    </span>
+                  </div>
                 </div>
                 <Button asChild variant="outline" size="sm">
                   <Link to="/owner/properties/$propertyId" params={{ propertyId: property.id }}>

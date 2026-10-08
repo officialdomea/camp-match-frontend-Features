@@ -29,7 +29,7 @@ export const apiPropertyProvider: PropertyProvider = {
 
   getProperty: (id: string) => apiClient.get<ManagedProperty>(`/properties/${id}`),
 
-  createProperty: (input: PropertyDraftInput) =>
+  createProperty: (input: PropertyDraftInput, _ownerId?: string) =>
     apiClient.post<ManagedProperty>("/properties", { body: input }),
 
   updateProperty: (id: string, input: PropertyUpdateInput) =>
@@ -66,12 +66,13 @@ export const apiPropertyProvider: PropertyProvider = {
       query: { q: query },
     }),
 
-  authorizeScout: (scoutId: string, propertyIds: string[]) =>
+  authorizeScout: (scoutId: string, propertyIds: string[], _ownerId?: string) =>
     apiClient.post<AuthorizedScout>("/properties/scouts/authorize", {
       body: { scoutId, propertyIds },
     }),
 
-  removeScout: (scoutId: string) => apiClient.delete<void>(`/properties/scouts/${scoutId}`),
+  removeScout: (scoutId: string, _propertyIds?: string[]) =>
+    apiClient.delete<void>(`/properties/scouts/${scoutId}`),
 
   getScoutDashboard: () => apiClient.get<ScoutDashboardSummary>("/properties/scout/dashboard"),
 

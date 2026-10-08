@@ -12,3 +12,12 @@ export type MessagingProvider = {
   ): Promise<Conversation | null>;
   getUnreadCount(actor: MessagingActor): Promise<number>;
 };
+
+export type MessagingService = {
+  getConversations(): Promise<Conversation[]>;
+  getConversation(conversationId: string): Promise<Conversation | null>;
+  getMessages(conversationId: string): Promise<Message[]>;
+  sendMessage(input: Pick<SendMessageInput, "conversationId" | "body">): Promise<Message>;
+  markConversationAsRead(conversationId: string): Promise<Conversation | null>;
+  getUnreadCount(): Promise<number>;
+};
