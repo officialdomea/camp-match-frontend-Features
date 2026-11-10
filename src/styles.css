@@ -171,10 +171,14 @@
   }
 
   html {
+    min-height: 100%;
     -webkit-tap-highlight-color: transparent;
+    scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
 
   body {
+    min-height: 100vh;
+    min-height: 100dvh;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);

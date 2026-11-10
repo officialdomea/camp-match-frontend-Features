@@ -43,12 +43,14 @@ export function nextPathForUser(user: AuthUser): AppPath {
  * screens available to all authenticated users.
  */
 export function isRoleRouteAllowed(pathname: string, role: UserRole | null): boolean {
+  const isStudentDashboard = pathname === "/";
   const isOwnerRoute = pathname === "/owner" || pathname.startsWith("/owner/");
   const isScoutRoute = pathname === "/scout" || pathname.startsWith("/scout/");
   const isStudentOnlyRoute = studentOnlyPrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 
+  if (isStudentDashboard) return role === "student";
   if (isOwnerRoute) return role === "owner";
   if (isScoutRoute) return role === "scout";
   if (isStudentOnlyRoute) return role === "student";

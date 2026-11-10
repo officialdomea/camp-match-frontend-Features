@@ -8,7 +8,7 @@ export function SidebarNav() {
   const navItems = getNavItems(user?.role);
 
   return (
-    <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 border-r border-border bg-sidebar px-3 py-6 lg:block">
+    <aside className="sticky top-16 hidden min-h-[calc(100dvh-4rem)] w-60 shrink-0 border-r border-border bg-sidebar px-3 py-6 lg:block">
       <nav aria-label="Primary">
         <ul className="space-y-1">
           {navItems.map(({ label, to, icon: Icon }) => (

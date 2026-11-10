@@ -215,7 +215,7 @@ function FiltersSheet({ trigger }: { trigger: React.ReactNode }) {
           onClick={() => setOpen(false)}
         >
           <div
-            className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-background p-4 pb-8 animate-in slide-in-from-bottom duration-200"
+            className="max-h-[85dvh] w-full touch-pan-y overflow-y-auto overscroll-contain rounded-t-3xl bg-background p-4 pb-[calc(2rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom duration-200"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-border" />

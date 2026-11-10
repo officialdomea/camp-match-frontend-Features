@@ -19,11 +19,16 @@ import type { AuthProvider } from "./auth.provider";
 let currentSession: Session | null = null;
 
 export const apiAuthProvider: AuthProvider = {
-  async signInWithGoogle() {
-    throw createAppError("SERVER_ERROR", {
-      title: "Google sign-in is not connected",
-      message: "Google sign-in will be available when the authentication backend is connected.",
-    });
+  async signInWithGoogle(credential) {
+    if (!credential) {
+      throw createAppError("VALIDATION_ERROR", {
+        message: "Google did not return an authentication credential. Please try again.",
+      });
+    }
+
+    const session = await apiClient.post<Session>("/auth/google", { body: { credential } });
+    currentSession = session;
+    return session;
   },
 
   async getCurrentUser() {

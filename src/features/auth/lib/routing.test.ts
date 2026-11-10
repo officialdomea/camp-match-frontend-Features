@@ -3,9 +3,15 @@ import { isRoleRouteAllowed } from "./routing";
 
 describe("role route permissions", () => {
   it("allows students into student routes only", () => {
+    expect(isRoleRouteAllowed("/", "student")).toBe(true);
     expect(isRoleRouteAllowed("/roommates", "student")).toBe(true);
     expect(isRoleRouteAllowed("/owner/properties", "student")).toBe(false);
     expect(isRoleRouteAllowed("/scout/properties", "student")).toBe(false);
+  });
+
+  it("blocks non-students from the student dashboard", () => {
+    expect(isRoleRouteAllowed("/", "owner")).toBe(false);
+    expect(isRoleRouteAllowed("/", "scout")).toBe(false);
   });
 
   it("blocks owners and scouts from roommate routes", () => {

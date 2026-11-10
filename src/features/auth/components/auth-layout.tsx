@@ -14,7 +14,7 @@ export function AuthLayout({
   footer?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-background">
       <header className="px-4 pt-6 sm:px-6">
         <div className="mx-auto flex w-full max-w-lg items-center justify-between">
           <Link to="/" className="flex items-center gap-2" aria-label="Camp Match home">

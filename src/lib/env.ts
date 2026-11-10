@@ -4,6 +4,7 @@
  */
 export const env = {
   apiBaseUrl: import.meta.env["VITE_API_BASE_URL"] ?? "/api/v1",
+  googleClientId: import.meta.env["VITE_GOOGLE_CLIENT_ID"] ?? "",
   /** Flip to false once the FastAPI backend is reachable. */
   useMockData: (import.meta.env["VITE_USE_MOCK_DATA"] ?? "true").toString() !== "false",
 } as const;

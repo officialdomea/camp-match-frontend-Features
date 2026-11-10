@@ -41,7 +41,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (state.status !== "authenticated") {
     return (
       <div
-        className="flex min-h-screen items-center justify-center bg-background"
+        className="flex min-h-dvh items-center justify-center bg-background"
         role="status"
         aria-live="polite"
       >
@@ -52,11 +52,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <AppHeader />
       <div className="mx-auto flex w-full max-w-[1600px]">
         <SidebarNav />
-        <main id="main" className="min-w-0 flex-1 pb-24 lg:pb-12" tabIndex={-1}>
+        <main
+          id="main"
+          className="min-w-0 flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-12"
+          tabIndex={-1}
+        >
           {children}
         </main>
       </div>

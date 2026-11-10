@@ -19,7 +19,7 @@ export type AuthProvider = {
   getAccessToken(): string | null;
   refreshSession(): Promise<Session>;
   clearSession(): Promise<void>;
-  signInWithGoogle(): Promise<Session>;
+  signInWithGoogle(credential?: string): Promise<Session>;
   login(payload: LoginPayload): Promise<Session>;
   register(payload: RegisterPayload): Promise<Session>;
   verifyAccount(payload: VerifyPayload): Promise<AuthUser>;

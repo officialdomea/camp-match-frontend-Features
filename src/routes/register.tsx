@@ -75,11 +75,11 @@ function RegisterPage() {
     }
   }
 
-  async function handleGoogleSignIn() {
+  async function handleGoogleSignIn(credential: string) {
     setError(null);
     setGoogleSubmitting(true);
     try {
-      const session = await authService.signInWithGoogle();
+      const session = await authService.signInWithGoogle(credential);
       setUser(session.user);
       navigate({ to: nextPathForUser(session.user) });
     } catch (caught) {
@@ -105,7 +105,10 @@ function RegisterPage() {
       <form className="space-y-4" onSubmit={handleSubmit} noValidate>
         <ErrorBanner error={error} />
 
-        <GoogleAuthButton onClick={() => void handleGoogleSignIn()} loading={googleSubmitting} />
+        <GoogleAuthButton
+          onCredential={(credential) => void handleGoogleSignIn(credential)}
+          loading={googleSubmitting}
+        />
 
         <div className="flex items-center gap-3 py-1" aria-hidden="true">
           <div className="h-px flex-1 bg-border" />

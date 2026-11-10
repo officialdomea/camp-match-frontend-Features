@@ -61,3 +61,12 @@ Camp Match is actively under development with a strong emphasis on:
 - Responsive design
 - Accessibility
 - Trust and safety
+
+## Google sign-in
+
+Live Google sign-in uses the Google Identity Services account button. Configure
+the public `VITE_GOOGLE_CLIENT_ID` and set `VITE_USE_MOCK_DATA=false` in the
+frontend environment. The backend must expose `POST /auth/google`, verify the
+submitted Google credential with Google, create or look up the matching Camp
+Match profile, and return the standard authentication `Session` response.
+Never put a Google client secret in a `VITE_` variable.

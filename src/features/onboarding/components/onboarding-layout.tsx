@@ -20,7 +20,7 @@ export function OnboardingLayout({
   footer?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-background">
       <header className="border-b border-border bg-surface/90 px-4 py-4 backdrop-blur-md sm:px-6">
         <div className="mx-auto flex w-full max-w-2xl items-center gap-3">
           <Link to="/" className="flex items-center gap-2" aria-label="Camp Match home">

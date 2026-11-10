@@ -1,5 +1,4 @@
 import {
-  DEMO_SCOUT_ID,
   mockAuthorizedScouts,
   mockManagedProperties,
   mockScoutDirectory,
@@ -19,6 +18,7 @@ import type {
   ScoutSearchResult,
   UploadedPhoto,
 } from "@/types/property";
+import type { UserRole } from "@/types/auth";
 import type { PropertyProvider } from "./property.provider";
 
 function delay<T>(value: T, ms = 400): Promise<T> {
@@ -81,8 +81,33 @@ function applyParams<T extends ManagedProperty>(items: T[], params: PropertyList
   }
 }
 
-function toScoutProperty(property: ManagedProperty): ScoutManagedProperty | null {
-  const assignment = property.scouts.find((item) => item.scoutId === DEMO_SCOUT_ID);
+type PropertyActor = { id: string; role: UserRole };
+
+function currentActor(): PropertyActor | null {
+  try {
+    if (typeof window === "undefined") return null;
+    const raw = window.localStorage.getItem("campmatch.session");
+    if (!raw) return null;
+    const session = JSON.parse(raw) as { user?: { id?: string; role?: UserRole | null } };
+    const user = session.user;
+    if (!user?.id || !user.role) return null;
+    return { id: user.id, role: user.role };
+  } catch {
+    return null;
+  }
+}
+
+function requireActor(role: UserRole): PropertyActor {
+  const actor = currentActor();
+  if (!actor) throw createAppError("AUTHENTICATION_ERROR");
+  if (actor.role !== role) throw createAppError("FORBIDDEN");
+  return actor;
+}
+
+function toScoutProperty(property: ManagedProperty, scoutId: string): ScoutManagedProperty | null {
+  const assignment = property.scouts.find(
+    (item) => item.scoutId === scoutId && item.status === "active",
+  );
   if (!assignment) return null;
   return {
     ...property,
@@ -96,7 +121,9 @@ function toScoutProperty(property: ManagedProperty): ScoutManagedProperty | null
 
 export const mockPropertyProvider: PropertyProvider = {
   async getOwnerDashboard(): Promise<OwnerDashboardSummary> {
-    const recentActivity = store
+    const actor = requireActor("owner");
+    const ownedProperties = store.filter((property) => property.owner.id === actor.id);
+    const recentActivity = ownedProperties
       .flatMap((property) =>
         property.activity.slice(0, 2).map((item) => ({
           ...item,
@@ -108,20 +135,23 @@ export const mockPropertyProvider: PropertyProvider = {
       .slice(0, 6);
 
     return delay({
-      totalProperties: store.length,
-      activeProperties: store.filter((p) => p.status === "active").length,
-      pendingVerification: store.filter((p) => p.verification.overall === "pending").length,
-      needsAttention: store.filter((p) =>
+      totalProperties: ownedProperties.length,
+      activeProperties: ownedProperties.filter((p) => p.status === "active").length,
+      pendingVerification: ownedProperties.filter((p) => p.verification.overall === "pending")
+        .length,
+      needsAttention: ownedProperties.filter((p) =>
         ["changes_requested", "rejected", "suspended"].includes(p.status),
       ).length,
-      bookingRequests: store.reduce((sum, p) => sum + p.performance.bookingRequests, 0),
-      newEnquiries: store.reduce((sum, p) => sum + p.performance.enquiries, 0),
+      bookingRequests: ownedProperties.reduce((sum, p) => sum + p.performance.bookingRequests, 0),
+      newEnquiries: ownedProperties.reduce((sum, p) => sum + p.performance.enquiries, 0),
       recentActivity,
     });
   },
 
   async getOwnerProperties(params) {
-    return delay(clone(applyParams(store, params)));
+    const actor = requireActor("owner");
+    const ownedProperties = store.filter((property) => property.owner.id === actor.id);
+    return delay(clone(applyParams(ownedProperties, params)));
   },
 
   async getProperty(id) {
@@ -129,6 +159,8 @@ export const mockPropertyProvider: PropertyProvider = {
   },
 
   async createProperty(input: PropertyDraftInput, ownerId) {
+    const actor = requireActor("owner");
+    if (ownerId && ownerId !== actor.id) throw createAppError("FORBIDDEN");
     const now = new Date().toISOString();
     const property: ManagedProperty = {
       id: `prop_${Math.random().toString(36).slice(2, 8)}`,
@@ -138,7 +170,7 @@ export const mockPropertyProvider: PropertyProvider = {
       status: "pending_review",
       owner: {
         ...(store[0]?.owner ?? { id: "usr_demo_owner", name: "You", verified: true }),
-        ...(ownerId ? { id: ownerId } : {}),
+        id: actor.id,
       },
       location: {
         universityId: input.location.universityId,
@@ -355,8 +387,9 @@ export const mockPropertyProvider: PropertyProvider = {
   },
 
   async getScoutDashboard(): Promise<ScoutDashboardSummary> {
+    const actor = requireActor("scout");
     const managed = store
-      .map(toScoutProperty)
+      .map((property) => toScoutProperty(property, actor.id))
       .filter((item): item is ScoutManagedProperty => item !== null);
     return delay({
       managedProperties: managed.length,
@@ -377,14 +410,16 @@ export const mockPropertyProvider: PropertyProvider = {
   },
 
   async getManagedProperties(params) {
+    const actor = requireActor("scout");
     const managed = store
-      .map(toScoutProperty)
+      .map((property) => toScoutProperty(property, actor.id))
       .filter((item): item is ScoutManagedProperty => item !== null);
     return delay(clone(applyParams(managed, params)));
   },
 
   async getManagedProperty(id) {
-    const managed = toScoutProperty(find(id));
+    const actor = requireActor("scout");
+    const managed = toScoutProperty(find(id), actor.id);
     if (!managed) throw createAppError("FORBIDDEN");
     return delay(clone(managed));
   },

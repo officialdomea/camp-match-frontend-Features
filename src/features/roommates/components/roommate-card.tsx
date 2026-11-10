@@ -122,7 +122,7 @@ export function RoommateCard({
       </Card>
 
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="max-h-[90dvh] touch-pan-y overflow-y-auto overscroll-contain sm:max-w-2xl">
           <DialogHeader>
             <div className="flex items-start gap-4 pr-6 text-left">
               <Avatar className="size-20 shrink-0 rounded-xl">

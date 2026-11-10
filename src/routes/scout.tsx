@@ -1,13 +1,26 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { Activity, ArrowRight, BarChart3, MapPinned, Users } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/states";
 import { ProfilePhoto } from "@/components/common/profile-photo";
+import { ActivityTimeline } from "@/features/dashboard/activity-timeline";
+import {
+  bookingActivityItems,
+  conversationActivityItems,
+  notificationActivityItems,
+  propertyActivityItems,
+  recentDashboardActivity,
+} from "@/features/dashboard/activity";
+import { countByStatus } from "@/features/dashboard/insights";
+import { useScoutBookingActivity } from "@/features/bookings/hooks/use-bookings";
+import { messagingService } from "@/features/messages/services/messaging.service";
+import { notificationService } from "@/features/notifications/services/notification.service";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerificationStatus } from "@/features/onboarding/components/verification-status";
 import { useAuth } from "@/features/auth/hooks/use-auth";
-import { useScoutDashboard } from "@/features/properties/hooks/use-properties";
+import { useManagedProperties } from "@/features/properties/hooks/use-properties";
 
 export const Route = createFileRoute("/scout")({
   head: () => ({
@@ -29,8 +42,70 @@ export const Route = createFileRoute("/scout")({
 
 function ScoutHomePage() {
   const { user, setUser } = useAuth();
-  const { data, isPending, isError, refetch } = useScoutDashboard();
+  const properties = useManagedProperties();
+  const bookings = useScoutBookingActivity(user?.id);
   const pathname = useLocation({ select: (location) => location.pathname });
+
+  const conversations = useQuery({
+    queryKey: ["messages", "conversations", user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: () => messagingService.getConversations(),
+    retry: false,
+  });
+
+  const notifications = useQuery({
+    queryKey: ["notifications", user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: () => notificationService.getNotifications(),
+    retry: false,
+  });
+
+  const unreadNotifications = useQuery({
+    queryKey: ["notifications", "unread", user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: () => notificationService.getUnreadCount(),
+    retry: false,
+  });
+
+  const managedProperties = properties.data ?? [];
+  const bookingStatusCounts = countByStatus(
+    bookings.data ?? [],
+    ["pending", "approved", "rejected", "cancelled", "confirmed", "expired"] as const,
+    (booking) => booking.status,
+  );
+  const activityItems = recentDashboardActivity([
+    propertyActivityItems(managedProperties, "scout"),
+    bookingActivityItems(bookings.data ?? [], "scout"),
+    notificationActivityItems(notifications.data ?? [], "scout"),
+    conversationActivityItems(conversations.data ?? []),
+  ]);
+  const activityIsPending =
+    properties.isPending ||
+    bookings.isPending ||
+    notifications.isPending ||
+    conversations.isPending;
+  const activityHasError =
+    properties.isError || bookings.isError || notifications.isError || conversations.isError;
+  const retryActivity = () => {
+    void properties.refetch();
+    void bookings.refetch();
+    void notifications.refetch();
+    void conversations.refetch();
+  };
+  const pendingReview = managedProperties.filter(
+    (property) =>
+      property.status === "pending_review" ||
+      property.verification.overall === "pending" ||
+      property.verification.overall === "submitted",
+  ).length;
+  const newEnquiries = managedProperties.reduce(
+    (total, property) => total + property.performance.enquiries,
+    0,
+  );
+  const unreadMessages = conversations.data?.reduce(
+    (total, conversation) => total + conversation.unreadCount,
+    0,
+  );
 
   if (pathname !== "/scout") return <Outlet />;
 
@@ -53,33 +128,41 @@ function ScoutHomePage() {
 
         <VerificationStatus status={user?.identityVerification ?? "pending"} />
 
-        {isPending ? (
+        {properties.isPending ? (
           <LoadingState label="Loading scout dashboard" />
-        ) : isError ? (
-          <ErrorState title="We couldn't load your dashboard" onRetry={() => void refetch()} />
-        ) : !data ? (
-          <EmptyState
-            title="No scout data yet"
-            description="Your managed properties will appear here once you’re active."
+        ) : properties.isError ? (
+          <ErrorState
+            title="We couldn't load your dashboard"
+            onRetry={() => void properties.refetch()}
           />
         ) : (
           <>
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               <Card className="p-4">
                 <p className="text-xs text-muted-foreground">Managed properties</p>
-                <p className="mt-2 text-2xl font-bold">{data.managedProperties}</p>
+                <p className="mt-2 text-2xl font-bold">{managedProperties.length}</p>
               </Card>
               <Card className="p-4">
                 <p className="text-xs text-muted-foreground">Active listings</p>
-                <p className="mt-2 text-2xl font-bold">{data.activeListings}</p>
+                <p className="mt-2 text-2xl font-bold">
+                  {managedProperties.filter((property) => property.status === "active").length}
+                </p>
               </Card>
               <Card className="p-4">
                 <p className="text-xs text-muted-foreground">Pending review</p>
-                <p className="mt-2 text-2xl font-bold">{data.pendingReview}</p>
+                <p className="mt-2 text-2xl font-bold">{pendingReview}</p>
               </Card>
               <Card className="p-4">
                 <p className="text-xs text-muted-foreground">New enquiries</p>
-                <p className="mt-2 text-2xl font-bold">{data.newEnquiries}</p>
+                <p className="mt-2 text-2xl font-bold">{newEnquiries}</p>
+              </Card>
+              <Card className="p-4">
+                <p className="text-xs text-muted-foreground">Unread</p>
+                <p className="mt-2 text-2xl font-bold">
+                  {conversations.isError || unreadNotifications.isError
+                    ? "Unavailable"
+                    : (unreadMessages ?? 0) + (unreadNotifications.data ?? 0)}
+                </p>
               </Card>
             </div>
 
@@ -98,27 +181,19 @@ function ScoutHomePage() {
                   </Button>
                 </div>
 
-                <div className="mt-4 space-y-3">
-                  {data.recentActivity.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No activity yet.</p>
-                  ) : (
-                    data.recentActivity.slice(0, 4).map((item) => (
-                      <div key={item.id} className="flex gap-3 rounded-xl border border-border p-3">
-                        <div className="mt-1 flex size-8 items-center justify-center rounded-full bg-primary-soft text-primary">
-                          <Activity className="size-4" aria-hidden="true" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium">{item.title}</p>
-                          {item.description ? (
-                            <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
-                          ) : null}
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {new Date(item.occurredAt).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  )}
+                <div className="mt-4">
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    Authorized bookings: {bookingStatusCounts.pending} pending ·{" "}
+                    {bookingStatusCounts.approved} approved · {bookingStatusCounts.rejected}{" "}
+                    rejected
+                  </p>
+                  <ActivityTimeline
+                    items={activityItems}
+                    isPending={activityIsPending}
+                    isError={activityHasError}
+                    onRetry={retryActivity}
+                    emptyDescription="Assigned property updates and permitted booking activity will appear here when recorded."
+                  />
                 </div>
               </Card>
 

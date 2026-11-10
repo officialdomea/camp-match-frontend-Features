@@ -1,0 +1,850 @@
+.camp-intro {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.camp-intro__frame {
+  display: flex;
+  width: min(100%, 78rem);
+  min-height: 100vh;
+  min-height: 100dvh;
+  flex-direction: column;
+  margin-inline: auto;
+  padding: max(1rem, env(safe-area-inset-top)) clamp(1.125rem, 4vw, 3.75rem)
+    max(1rem, env(safe-area-inset-bottom));
+}
+
+.camp-intro__header,
+.camp-intro__brand,
+.camp-intro__skip,
+.camp-intro__progress,
+.camp-intro__actions {
+  display: flex;
+  align-items: center;
+}
+
+.camp-intro__header {
+  min-height: 3rem;
+  justify-content: space-between;
+}
+
+.camp-intro__brand {
+  gap: 0.65rem;
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.camp-intro__brand-mark {
+  display: grid;
+  width: 2rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 0.7rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.camp-intro__brand-mark svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.camp-intro__skip,
+.camp-intro__login {
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.camp-intro__skip {
+  gap: 0.45rem;
+  padding: 0.55rem 0;
+}
+
+.camp-intro__skip svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.camp-intro__header-note {
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+}
+
+.camp-intro__body {
+  display: grid;
+  flex: 1;
+  align-content: center;
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4.75rem);
+  padding-block: clamp(1rem, 3vh, 2rem);
+}
+
+.camp-intro__visual {
+  position: relative;
+  width: 100%;
+  max-width: 38rem;
+  aspect-ratio: 1.3;
+  justify-self: center;
+  overflow: hidden;
+  border-radius: 1.15rem;
+  background: var(--primary-soft);
+  isolation: isolate;
+  touch-action: pan-y;
+  user-select: none;
+  box-shadow: var(--shadow-lift);
+}
+
+.camp-intro__visual::after {
+  position: absolute;
+  z-index: -1;
+  inset: 35% 0 0;
+  background: linear-gradient(180deg, transparent, oklch(0.13 0.025 160 / 0.7));
+  content: "";
+  pointer-events: none;
+}
+
+.camp-intro__hero-image,
+.camp-intro__collage img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+}
+
+.camp-intro__hero-image {
+  z-index: -2;
+  animation: camp-intro-image-arrive 620ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.camp-intro__visual--2 .camp-intro__hero-image {
+  object-position: center 54%;
+}
+
+.camp-intro__visual--3 .camp-intro__hero-image {
+  object-position: center 56%;
+}
+
+.camp-intro__image-kicker,
+.camp-intro__final-caption {
+  position: absolute;
+  z-index: 1;
+  color: white;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.camp-intro__image-kicker {
+  top: 1.15rem;
+  left: 1.15rem;
+  border: 1px solid oklch(1 0 0 / 48%);
+  border-radius: 999px;
+  padding: 0.45rem 0.7rem;
+  background: oklch(0.2 0.025 160 / 0.28);
+  backdrop-filter: blur(8px);
+}
+
+.camp-intro__property-preview {
+  position: absolute;
+  z-index: 1;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  left: 0.8rem;
+  border: 1px solid oklch(1 0 0 / 55%);
+  border-radius: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  animation: camp-intro-card-arrive 680ms 90ms both;
+}
+
+.camp-intro__preview-label,
+.camp-intro__owner-preview-top small {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--muted-foreground);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.camp-intro__preview-row,
+.camp-intro__owner-preview-top,
+.camp-intro__owner-preview-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.camp-intro__preview-row > div,
+.camp-intro__owner-preview-top > span:nth-child(2) {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.camp-intro__preview-row strong,
+.camp-intro__owner-preview-top strong {
+  color: var(--foreground);
+  font-size: 0.84rem;
+}
+
+.camp-intro__preview-row > div > span {
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+}
+
+.camp-intro__price {
+  flex: 0 0 auto;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.camp-intro__price span {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 0.62rem;
+  font-weight: 500;
+  text-align: right;
+}
+
+.camp-intro__location-tag {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  padding: 0.6rem 0.8rem;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.camp-intro__location-tag svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--primary);
+}
+
+.camp-intro__scout-note {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  left: 1rem;
+  display: grid;
+  gap: 0.55rem;
+  color: white;
+}
+
+.camp-intro__scout-note > span {
+  color: oklch(1 0 0 / 80%);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.camp-intro__scout-note strong {
+  max-width: 24rem;
+  font-size: clamp(1.1rem, 3vw, 1.65rem);
+  line-height: 1.15;
+}
+
+.camp-intro__owner-preview {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  left: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  animation: camp-intro-card-arrive 680ms 90ms both;
+}
+
+.camp-intro__owner-preview-top {
+  justify-content: flex-start;
+}
+
+.camp-intro__owner-icon {
+  display: grid;
+  width: 2.2rem;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.6rem;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.camp-intro__owner-icon svg {
+  width: 1.1rem;
+}
+
+.camp-intro__owner-preview-top small {
+  margin: 0;
+}
+
+.camp-intro__owner-preview-top strong {
+  font-size: 0.82rem;
+}
+
+.camp-intro__dots {
+  margin-left: auto;
+  color: var(--muted-foreground);
+  letter-spacing: 0.12em;
+}
+
+.camp-intro__owner-preview-bottom {
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.65rem;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+}
+
+.camp-intro__owner-preview-bottom strong {
+  color: var(--primary);
+  font-size: 0.72rem;
+}
+
+.camp-intro__match-preview {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.7rem;
+  left: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.8rem;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  animation: camp-intro-card-arrive 680ms 90ms both;
+}
+
+.camp-intro__match-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--muted-foreground);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.camp-intro__match-label svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--primary);
+}
+
+.camp-intro__profiles {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block: 0.65rem;
+}
+
+.camp-intro__profile {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  text-align: center;
+}
+
+.camp-intro__avatar {
+  display: grid;
+  width: 2rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  color: var(--foreground);
+  font-size: 0.75rem;
+  font-weight: 800;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.camp-intro__avatar--one {
+  background: var(--accent-soft);
+}
+
+.camp-intro__avatar--two {
+  background: var(--primary-soft);
+}
+
+.camp-intro__profile strong {
+  color: var(--foreground);
+  font-size: 0.7rem;
+}
+
+.camp-intro__profile > span:last-child {
+  color: var(--muted-foreground);
+  font-size: 0.58rem;
+}
+
+.camp-intro__match-link {
+  display: grid;
+  width: 1.55rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.camp-intro__match-link svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.camp-intro__match-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.6rem;
+  color: var(--muted-foreground);
+  font-size: 0.63rem;
+}
+
+.camp-intro__match-footer svg {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  color: var(--primary);
+}
+
+.camp-intro__visual--5 {
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+}
+
+.camp-intro__visual--5::after {
+  display: none;
+}
+
+.camp-intro__collage {
+  position: absolute;
+  inset: 0;
+}
+
+.camp-intro__collage img {
+  overflow: hidden;
+  border: 5px solid var(--background);
+  border-radius: 0.9rem;
+  box-shadow: var(--shadow-lift);
+  animation: camp-intro-image-arrive 620ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.camp-intro__collage-main {
+  z-index: 0;
+  width: 72% !important;
+  height: 78% !important;
+  inset: 10% 0 auto 14% !important;
+  object-position: center 56%;
+}
+
+.camp-intro__collage-top {
+  z-index: 1;
+  width: 39% !important;
+  height: 46% !important;
+  inset: 0 auto auto 0 !important;
+  object-position: center;
+  animation-delay: 90ms !important;
+}
+
+.camp-intro__collage-side {
+  z-index: 1;
+  width: 38% !important;
+  height: 43% !important;
+  inset: auto 0 0 auto !important;
+  object-position: center;
+  animation-delay: 150ms !important;
+}
+
+.camp-intro__collage-stamp {
+  position: absolute;
+  z-index: 2;
+  right: 39%;
+  bottom: 10%;
+  display: grid;
+  width: 5.25rem;
+  aspect-ratio: 1;
+  place-content: center;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  background: var(--background);
+  color: var(--primary);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-align: center;
+  transform: rotate(-8deg);
+}
+
+.camp-intro__final-caption {
+  right: 0;
+  bottom: 0.2rem;
+  color: var(--primary);
+}
+
+.camp-intro__copy {
+  max-width: 33rem;
+  justify-self: center;
+  animation: camp-intro-copy-arrive 520ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.camp-intro__eyebrow {
+  margin: 0 0 0.7rem;
+  color: var(--primary);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.camp-intro__copy h1 {
+  max-width: 12ch;
+  margin: 0;
+  color: var(--foreground);
+  font-size: clamp(2rem, 8vw, 3.45rem);
+  font-weight: 750;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.camp-intro__description {
+  max-width: 31rem;
+  margin: 0.85rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  animation: camp-intro-description-arrive 540ms 70ms both;
+}
+
+.camp-intro__footer {
+  display: grid;
+  gap: 1.1rem;
+  padding-top: 0.5rem;
+}
+
+.camp-intro__progress {
+  gap: 0.45rem;
+}
+
+.camp-intro__progress-step {
+  display: grid;
+  width: 2.15rem;
+  height: 1.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.camp-intro__progress-step span {
+  display: block;
+  width: 100%;
+  height: 0.2rem;
+  border-radius: 999px;
+  background: var(--border);
+  transition:
+    background-color 240ms ease,
+    transform 240ms ease;
+}
+
+.camp-intro__progress-step.is-active span {
+  background: var(--primary);
+  transform: scaleY(1.35);
+}
+
+.camp-intro__progress-step.is-complete span {
+  background: color-mix(in oklch, var(--primary) 48%, var(--border));
+}
+
+.camp-intro__counter {
+  margin-left: auto;
+  color: var(--foreground);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.camp-intro__counter span {
+  padding-inline: 0.15rem;
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+.camp-intro__actions {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.camp-intro__back {
+  display: grid;
+  width: 2.85rem;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.camp-intro__back:hover:not(:disabled) {
+  background: var(--primary-soft);
+}
+
+.camp-intro__back:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.camp-intro__back:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.camp-intro__back svg {
+  width: 1.1rem;
+}
+
+.camp-intro__next {
+  min-width: 10.5rem;
+  justify-content: center;
+  gap: 0.65rem;
+  border-radius: 0.8rem;
+  transition: transform 160ms ease;
+}
+
+.camp-intro__next:active,
+.camp-intro__get-started:active {
+  transform: scale(0.98);
+}
+
+.camp-intro__next svg,
+.camp-intro__get-started svg {
+  width: 1rem;
+}
+
+.camp-intro__final-actions {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.1rem;
+}
+
+.camp-intro__get-started {
+  min-width: 10.5rem;
+  justify-content: center;
+  gap: 0.65rem;
+  border-radius: 0.8rem;
+}
+
+.camp-intro__login {
+  padding: 0.7rem 0;
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.camp-intro button:focus-visible,
+.camp-intro a:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+
+@keyframes camp-intro-image-arrive {
+  from {
+    opacity: 0.7;
+    transform: scale(1.035);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes camp-intro-card-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(0.65rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes camp-intro-copy-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes camp-intro-description-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 48rem) {
+  .camp-intro__frame {
+    padding-top: max(1.5rem, env(safe-area-inset-top));
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  .camp-intro__body {
+    grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 0.92fr);
+  }
+
+  .camp-intro__visual {
+    width: 100%;
+    aspect-ratio: 0.88;
+    max-height: 42rem;
+    justify-self: start;
+  }
+
+  .camp-intro__copy {
+    width: 100%;
+    justify-self: start;
+  }
+
+  .camp-intro__copy h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .camp-intro__footer {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+
+  .camp-intro__progress {
+    max-width: 20rem;
+  }
+
+  .camp-intro__actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (min-width: 75rem) {
+  .camp-intro__body {
+    gap: 5.5rem;
+  }
+
+  .camp-intro__visual {
+    aspect-ratio: 0.96;
+  }
+}
+
+@media (max-width: 23rem) {
+  .camp-intro__frame {
+    padding-inline: 0.9rem;
+  }
+
+  .camp-intro__body {
+    gap: 1.1rem;
+  }
+
+  .camp-intro__visual {
+    aspect-ratio: 1.18;
+  }
+
+  .camp-intro__copy h1 {
+    font-size: 1.8rem;
+  }
+
+  .camp-intro__description {
+    margin-top: 0.6rem;
+    font-size: 0.88rem;
+  }
+
+  .camp-intro__progress {
+    gap: 0.25rem;
+  }
+
+  .camp-intro__progress-step {
+    width: 1.75rem;
+  }
+
+  .camp-intro__final-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .camp-intro__login {
+    font-size: 0.76rem;
+  }
+}
+
+@media (max-height: 42rem) and (max-width: 47.99rem) {
+  .camp-intro__frame {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .camp-intro__body {
+    align-content: start;
+    gap: 0.8rem;
+    padding-block: 0.5rem;
+  }
+
+  .camp-intro__visual {
+    width: min(100%, 25rem);
+    aspect-ratio: 1.65;
+  }
+
+  .camp-intro__footer {
+    gap: 0.55rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camp-intro *,
+  .camp-intro *::before,
+  .camp-intro *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
