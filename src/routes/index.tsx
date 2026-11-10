@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import {
   AlertTriangle,
   ArrowRight,
@@ -15,7 +15,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/states";
 import { PropertyCard } from "@/components/listings/property-card";
@@ -37,7 +37,6 @@ import { summarizeStudentDashboard } from "@/features/student/dashboard";
 import { VerificationStatus } from "@/features/onboarding/components/verification-status";
 import { formatNaira } from "@/lib/format";
 import { IntroExperience } from "@/features/intro/intro-experience";
-import { hasCompletedIntro } from "@/features/intro/persistence";
 import { useStudentBookings } from "@/features/bookings/hooks/use-bookings";
 import { useListingSearch } from "@/features/listings/hooks/use-listings";
 import { messagingService } from "@/features/messages/services/messaging.service";
@@ -46,17 +45,20 @@ import { notificationService } from "@/features/notifications/services/notificat
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Student dashboard — Camp Match" },
+      { title: "Camp Match — Verified student housing near your campus" },
       {
         name: "description",
         content:
-          "Track your verification, saved homes, bookings, messages, notifications and roommate progress on Camp Match.",
+          "Discover verified student accommodation in Nigeria, compare prices in naira and connect with trusted House Scouts near your university.",
       },
-      { property: "og:title", content: "Student dashboard — Camp Match" },
+      {
+        property: "og:title",
+        content: "Camp Match — Verified student housing near your campus",
+      },
       {
         property: "og:description",
         content:
-          "Your Camp Match status centre for bookings, saved homes, and important next steps.",
+          "Discover verified student accommodation in Nigeria and connect with trusted House Scouts.",
       },
     ],
   }),
@@ -65,7 +67,6 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { user, state } = useAuth();
-  const navigate = useNavigate();
   const { savedIds } = useSavedListings();
   const savedListingsQuery = useListingSearch({});
   const bookings = useStudentBookings(user?.id);
@@ -180,14 +181,6 @@ function HomePage() {
     notifications.isError ||
     conversations.isError;
 
-  const introCompleted = hasCompletedIntro();
-
-  useEffect(() => {
-    if (state.status === "unauthenticated" && introCompleted) {
-      void navigate({ to: "/login", replace: true });
-    }
-  }, [introCompleted, navigate, state.status]);
-
   if (state.status === "checking") {
     return (
       <AppShell>
@@ -197,13 +190,7 @@ function HomePage() {
   }
 
   if (!user) {
-    return introCompleted ? (
-      <AppShell>
-        <LoadingState label="Opening sign in" />
-      </AppShell>
-    ) : (
-      <IntroExperience />
-    );
+    return <IntroExperience />;
   }
 
   const recentConversations = conversations.data?.slice(0, 2) ?? [];

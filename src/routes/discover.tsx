@@ -131,7 +131,7 @@ function DiscoverPage() {
             </div>
           </form>
 
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <FiltersSheet trigger={filters} />
             <Select
               value={search.sort ?? "recommended"}
